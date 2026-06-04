@@ -302,6 +302,9 @@
       <a href="{{ url_for('unaccepted_quotes') }}" class="nav-link {% if request.endpoint == 'unaccepted_quotes' %}active{% endif %}">
         <span class="nav-icon">📋</span> Unaccepted Quotes
       </a>
+      <a href="{{ url_for('outstanding_orders') }}" class="nav-link {% if request.endpoint == 'outstanding_orders' %}active{% endif %}">
+        <span class="nav-icon">📦</span> Outstanding Orders
+      </a>
       <div class="nav-section-label">Finance</div>
       <a href="{{ url_for('todays_figures') }}" class="nav-link {% if request.endpoint == 'todays_figures' %}active{% endif %}">
         <span class="nav-icon">💰</span> Today's Figures
