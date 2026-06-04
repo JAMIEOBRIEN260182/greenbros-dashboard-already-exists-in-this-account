@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+{% block title %}Today's Figures – GreenBros{% endblock %}
+{% block page_title %}Today's Figures{% endblock %}
+
+{% block topbar_actions %}
+{% if user.role == 'admin' %}
+<button class="btn btn-primary" onclick="openUpdateModal()">📝 Update Figures</button>
+{% endif %}
+{% endblock %}
+
+{% block extra_styles %}
+.figures-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.fig-card {
+  background: var(--dark);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.fig-card::after {
+  content: '';
+  position: absolute;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.03);
+  bottom: -30px; right: -30px;
+}
+.fig-label {
+  font-size: .7rem;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.45);
+  margin-bottom: .5rem;
+}
+.fig-value {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.75rem;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.fig-value.green  { color: #52b788; }
+.fig-value.red    { color: #e74c3c; }
+.fig-value.amber  { color: #f39c12; }
+.fig-value.white  { color: #fff; }
+.fig-note {
+  font-size: .72rem;
+  color: rgba(255,255,255,.35);
+  margin-top: .35rem;
+  line-height: 1.4;
+}
+.date-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  background: var(--green);
+  color: #fff;
+  padding: .4rem .9rem;
+  border-radius: 20px;
+  font-size: .8rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+.no-data {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--muted);
+}
+.no-data .no-icon { font-size: 3rem; margin-bottom: 1rem; }
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.history-table th {
+  text-align: left;
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.history-table td {
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: .875rem;
+}
+.history-table tr:last-child td { border-bottom: none; }
+.history-table tr:hover td { background: #f9fafb; }
+.val-green { color: #2d6a4f; font-weight: 600; }
+.val-red   { color: #c0392b; font-weight: 600; }
+
+/* Modal */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:999; align-items:center; justify-content:center; padding:1rem; }
+.modal-overlay.open { display:flex; }
+.modal-box { background:#fff; border-radius:var(--radius); padding:1.75rem; width:100%; max-width:520px; animation:fadeUp .2s ease both; max-height:90vh; overflow-y:auto; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.modal-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+.field { margin-bottom:0; }
+.field label { display:block; font-size:.75rem; font-weight:500; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin-bottom:.35rem; }
+.form-input { width:100%; padding:.7rem .9rem; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:.9rem; color:var(--dark); outline:none; transition:border-color .15s,box-shadow .15s; }
+.form-input:focus { border-color:var(--green-l); box-shadow:0 0 0 3px rgba(82,183,136,.15); }
+.field-full { grid-column: 1 / -1; }
+{% endblock %}
+
+{% block content %}
+
+{% if latest %}
+  <div class="date-badge">
+    📅 {{ latest.figure_date.strftime('%d %B %Y') if latest.figure_date else 'Latest' }}
+    &nbsp;·&nbsp; Updated by {{ latest.updated_by }}
+  </div>
+
+  <div class="figures-grid">
+    <div class="fig-card">
+      <div class="fig-label">Savings Account</div>
+      <div class="fig-value green">£{{ "{:,.2f}".format(latest.savings or 0) }}</div>
+    </div>
+    <div class="fig-card">
+      <div class="fig-label">Bank Balance</div>
+      <div class="fig-value {% if (latest.bank_balance or 0) >= 0 %}green{% else %}red{% endif %}">
+        £{{ "{:,.2f}".format(latest.bank_balance or 0) }}
+      </div>
+    </div>
+    <div class="fig-card">
+      <div class="fig-label">Holding</div>
+      <div class="fig-value amber">£{{ "{:,.2f}".format(latest.holding or 0) }}</div>
+      {% if latest.holding_note %}
+      <div class="fig-note">{{ latest.holding_note }}</div>
+      {% endif %}
+    </div>
+    <div class="fig-card">
+      <div class="fig-label">RBSIF – Funds in Use</div>
+      <div class="fig-value red">-£{{ "{:,.2f}".format((latest.rbsif or 0)|abs) }}</div>
+    </div>
+    <div class="fig-card">
+      <div class="fig-label">Visa's Due in on Mace</div>
+      <div class="fig-value green">£{{ "{:,.2f}".format(latest.visas_due or 0) }}</div>
+    </div>
+    <div class="fig-card" style="border:2px solid #52b788;">
+      <div class="fig-label">Net Position (ex. savings)</div>
+      <div class="fig-value {% if (latest.net_position or 0) >= 0 %}green{% else %}red{% endif %}">
+        {% if (latest.net_position or 0) < 0 %}-{% endif %}£{{ "{:,.2f}".format((latest.net_position or 0)|abs) }}
+      </div>
+    </div>
+    <div class="fig-card">
+      <div class="fig-label">If We Paid Everything</div>
+      <div class="fig-value red">-£{{ "{:,.2f}".format((latest.if_paid_all or 0)|abs) }}</div>
+    </div>
+  </div>
+
+  <!-- History -->
+  {% if history|length > 1 %}
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div class="card-header" style="padding:1.25rem 1.5rem;">
+      <span class="card-title">Recent History</span>
+    </div>
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Bank Balance</th>
+          <th>RBSIF</th>
+          <th>Net Position</th>
+          <th>If Paid All</th>
+          <th>Updated By</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in history %}
+        <tr>
+          <td>{{ row.figure_date.strftime('%d/%m/%Y') if row.figure_date else '—' }}</td>
+          <td class="{% if (row.bank_balance or 0) >= 0 %}val-green{% else %}val-red{% endif %}">
+            £{{ "{:,.2f}".format(row.bank_balance or 0) }}
+          </td>
+          <td class="val-red">-£{{ "{:,.2f}".format((row.rbsif or 0)|abs) }}</td>
+          <td class="{% if (row.net_position or 0) >= 0 %}val-green{% else %}val-red{% endif %}">
+            {% if (row.net_position or 0) < 0 %}-{% endif %}£{{ "{:,.2f}".format((row.net_position or 0)|abs) }}
+          </td>
+          <td class="val-red">-£{{ "{:,.2f}".format((row.if_paid_all or 0)|abs) }}</td>
+          <td>{{ row.updated_by }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+{% else %}
+  <div class="card">
+    <div class="no-data">
+      <div class="no-icon">💰</div>
+      <p>No figures entered yet.</p>
+      {% if user.role == 'admin' %}
+      <button class="btn btn-primary" style="margin-top:1rem;" onclick="openUpdateModal()">Enter Today's Figures</button>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+
+<!-- UPDATE MODAL -->
+{% if user.role == 'admin' %}
+<div class="modal-overlay" id="updateModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      📝 Update Today's Figures
+      <button class="btn btn-secondary btn-sm" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalError" style="display:none;background:#fdecea;border:1px solid #f5c6cb;color:#721c24;padding:.65rem .9rem;border-radius:8px;font-size:.85rem;margin-bottom:1rem;"></div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Date</label>
+        <input class="form-input" type="date" id="figDate">
+      </div>
+      <div class="field">
+        <label>Savings Account (£)</label>
+        <input class="form-input" type="number" step="0.01" id="figSavings" placeholder="27283.30">
+      </div>
+      <div class="field">
+        <label>Bank Balance (£)</label>
+        <input class="form-input" type="number" step="0.01" id="figBank" placeholder="16726.84">
+      </div>
+      <div class="field">
+        <label>Holding (£)</label>
+        <input class="form-input" type="number" step="0.01" id="figHolding" placeholder="307415.36">
+      </div>
+      <div class="field field-full">
+        <label>Holding Note (optional)</label>
+        <input class="form-input" type="text" id="figHoldingNote" placeholder="e.g. NOT INC £60,896.39 BATT CABLES">
+      </div>
+      <div class="field">
+        <label>RBSIF Funds in Use (£)</label>
+        <input class="form-input" type="number" step="0.01" id="figRbsif" placeholder="549413.97">
+      </div>
+      <div class="field">
+        <label>Visa's Due in on Mace (£)</label>
+        <input class="form-input" type="number" step="0.01" id="figVisas" placeholder="78418.05">
+      </div>
+      <div class="field">
+        <label>Net Position ex. Savings (£)</label>
+        <input class="form-input" type="number" step="0.01" id="figNet" placeholder="-454269.08">
+      </div>
+      <div class="field">
+        <label>If Paid Everything (£)</label>
+        <input class="form-input" type="number" step="0.01" id="figIfPaid" placeholder="-761684.44">
+      </div>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-top:1.5rem;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="submitFigures()">Save Figures</button>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openUpdateModal() {
+  // Set today's date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('figDate').value = today;
+  document.getElementById('updateModal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('updateModal').classList.remove('open');
+}
+document.querySelector('.modal-overlay')?.addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+async function submitFigures() {
+  const errEl = document.getElementById('modalError');
+  errEl.style.display = 'none';
+
+  const data = {
+    figure_date:  document.getElementById('figDate').value,
+    savings:      parseFloat(document.getElementById('figSavings').value) || 0,
+    bank_balance: parseFloat(document.getElementById('figBank').value) || 0,
+    holding:      parseFloat(document.getElementById('figHolding').value) || 0,
+    holding_note: document.getElementById('figHoldingNote').value,
+    rbsif:        parseFloat(document.getElementById('figRbsif').value) || 0,
+    visas_due:    parseFloat(document.getElementById('figVisas').value) || 0,
+    net_position: parseFloat(document.getElementById('figNet').value) || 0,
+    if_paid_all:  parseFloat(document.getElementById('figIfPaid').value) || 0,
+  };
+
+  if (!data.figure_date) {
+    errEl.textContent = 'Please select a date.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const res  = await fetch('/todays-figures/update', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+  const json = await res.json();
+  if (json.ok) {
+    location.reload();
+  } else {
+    errEl.textContent = json.error || 'Something went wrong.';
+    errEl.style.display = 'block';
+  }
+}
+</script>
+{% endblock %}
