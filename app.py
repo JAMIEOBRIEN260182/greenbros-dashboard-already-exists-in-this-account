@@ -356,3 +356,8 @@ def quick_save_figures():
         conn.commit()
     flash("Figures updated successfully!", "success")
     return redirect(url_for("todays_figures"))
+
+@app.route("/sales-forecast")
+@login_required
+def sales_forecast():
+    return render_template("sales_forecast.html", user=current_user)
