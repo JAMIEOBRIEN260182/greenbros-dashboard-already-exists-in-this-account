@@ -208,3 +208,8 @@ init_db()
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+@app.route("/overview")
+@login_required
+def overview():
+    return render_template("overview.html", user=current_user)
