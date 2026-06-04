@@ -291,3 +291,8 @@ def outstanding_orders():
 @login_required
 def credit_limits():
     return render_template("credit_limits.html", user=current_user)
+
+@app.route("/solar-projects")
+@login_required
+def solar_projects():
+    return render_template("solar_projects.html", user=current_user)
