@@ -168,7 +168,7 @@ select.form-input { cursor: pointer; }
       </tr>
     </thead>
     <tbody>
-      {% for username, data in users.items() %}
+      {% for data in users %}{% set username = data.username %}
       <tr data-username="{{ username }}">
         <td>
           <div class="avatar-cell">
