@@ -295,6 +295,9 @@
       <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
         <span class="nav-icon">🏠</span> Dashboard
       </a>
+      <a href="{{ url_for('overview') }}" class="nav-link {% if request.endpoint == 'overview' %}active{% endif %}">
+        <span class="nav-icon">📊</span> Overview
+      </a>
 
       {% if user.role == 'admin' %}
       <div class="nav-section-label">Admin</div>
