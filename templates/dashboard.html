@@ -1,246 +1,318 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GreenBros Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-{% block title %}Dashboard – GreenBros{% endblock %}
-{% block page_title %}Dashboard{% endblock %}
+    :root {
+      --green:   #2d6a4f;
+      --green-l: #52b788;
+      --green-xl:#95d5b2;
+      --cream:   #f8f4ec;
+      --dark:    #1a2e22;
+      --muted:   #6b7f72;
+      --white:   #ffffff;
+    }
 
-{% block extra_styles %}
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
+    html, body {
+      min-height: 100vh;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+    }
 
-.stat-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.25rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
+    /* TOP BAR */
+    .topbar {
+      background: var(--green);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-.stat-icon {
-  width: 46px; height: 46px;
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.3rem;
-  flex-shrink: 0;
-}
+    .topbar img { height: 40px; filter: brightness(0) invert(1); }
 
-.stat-icon.green  { background: #d4edda; }
-.stat-icon.blue   { background: #d1ecf1; }
-.stat-icon.amber  { background: #fff3cd; }
-.stat-icon.purple { background: #ede7f6; }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
 
-.stat-value {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 1.75rem;
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      color: rgba(255,255,255,.8);
+      font-size: .875rem;
+    }
 
-.stat-label {
-  font-size: .8rem;
-  color: var(--muted);
-  margin-top: .2rem;
-}
+    .user-avatar {
+      width: 32px; height: 32px;
+      background: var(--green-l);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .8rem;
+      color: var(--dark);
+    }
 
-.welcome-card {
-  background: var(--green);
-  border-radius: var(--radius);
-  padding: 2rem;
-  color: #fff;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  overflow: hidden;
-  position: relative;
-}
+    .logout-link {
+      color: rgba(255,255,255,.6);
+      text-decoration: none;
+      font-size: .8rem;
+      padding: .35rem .75rem;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 6px;
+      transition: all .15s;
+    }
+    .logout-link:hover { background: rgba(255,255,255,.1); color: #fff; }
 
-.welcome-card::after {
-  content: '🌿';
-  position: absolute;
-  right: 2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 5rem;
-  opacity: .15;
-  pointer-events: none;
-}
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 3rem 2rem 2rem;
+    }
 
-.welcome-card h2 {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 1.5rem;
-  letter-spacing: -0.02em;
-  margin-bottom: .4rem;
-}
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      letter-spacing: -0.03em;
+      color: var(--dark);
+      margin-bottom: .4rem;
+    }
 
-.welcome-card p { color: rgba(255,255,255,.7); font-size: .9rem; }
+    .hero p {
+      color: var(--muted);
+      font-size: .95rem;
+    }
 
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    /* TILES GRID */
+    .tiles-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem 3rem;
+    }
 
-@media (max-width: 800px) { .two-col { grid-template-columns: 1fr; } }
+    .section-label {
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 1.75rem 0 .75rem;
+    }
 
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: .65rem 0;
-  border-bottom: 1px solid var(--border);
-  font-size: .9rem;
-}
+    .tiles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
 
-.info-row:last-child { border-bottom: none; }
-.info-row .info-label { color: var(--muted); }
-.info-row .info-val   { font-weight: 500; }
+    .tile {
+      background: var(--white);
+      border: 1.5px solid #dde6e0;
+      border-radius: 16px;
+      padding: 1.75rem 1.5rem;
+      text-decoration: none;
+      color: var(--dark);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: .75rem;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      animation: fadeUp .4s ease both;
+      cursor: pointer;
+    }
 
-.badge {
-  display: inline-block;
-  padding: .2rem .65rem;
-  border-radius: 20px;
-  font-size: .75rem;
-  font-weight: 500;
-}
-.badge-admin { background: #d4edda; color: #155724; }
-.badge-staff { background: #d1ecf1; color: #0c5460; }
-{% endblock %}
+    .tile:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(45,106,79,.12);
+      border-color: var(--green-l);
+    }
 
-{% block content %}
+    .tile:active { transform: translateY(-1px); }
 
-<div class="welcome-card">
-  <div>
-    <h2>Hey, {{ user.name }} 👋</h2>
-    <p>Welcome back to the GreenBros dashboard.</p>
+    .tile-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .tile-icon.green  { background: #d4edda; }
+    .tile-icon.blue   { background: #d1ecf1; }
+    .tile-icon.amber  { background: #fff3cd; }
+    .tile-icon.red    { background: #fdecea; }
+    .tile-icon.purple { background: #ede7f6; }
+    .tile-icon.dark   { background: var(--dark); }
+
+    .tile-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: -0.01em;
+    }
+
+    .tile-desc {
+      font-size: .82rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .tile-arrow {
+      margin-top: auto;
+      font-size: .8rem;
+      color: var(--green-l);
+      font-weight: 600;
+    }
+
+    /* Featured tile */
+    .tile.featured {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+    .tile.featured .tile-desc { color: rgba(255,255,255,.65); }
+    .tile.featured .tile-arrow { color: var(--green-xl); }
+    .tile.featured:hover { box-shadow: 0 12px 32px rgba(45,106,79,.3); }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .tile:nth-child(1) { animation-delay: .05s; }
+    .tile:nth-child(2) { animation-delay: .1s; }
+    .tile:nth-child(3) { animation-delay: .15s; }
+    .tile:nth-child(4) { animation-delay: .2s; }
+    .tile:nth-child(5) { animation-delay: .25s; }
+    .tile:nth-child(6) { animation-delay: .3s; }
+    .tile:nth-child(7) { animation-delay: .35s; }
+
+    /* Flash messages */
+    .flash-bar {
+      max-width: 1100px;
+      margin: 1rem auto 0;
+      padding: 0 1.5rem;
+    }
+    .flash-msg {
+      padding: .75rem 1rem;
+      border-radius: 10px;
+      font-size: .875rem;
+      margin-bottom: .5rem;
+    }
+    .flash-msg.success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+    .flash-msg.error   { background: #fdecea; border: 1px solid #f5c6cb; color: #721c24; }
+
+    @media (max-width: 600px) {
+      .tiles-grid { grid-template-columns: 1fr 1fr; }
+      .hero { padding: 2rem 1rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <img src="{{ url_for('static', filename='logo.png') }}" alt="GreenBros">
+  <div class="topbar-right">
+    <div class="user-pill">
+      <div class="user-avatar">{{ user.name[0].upper() }}</div>
+      <span>{{ user.name }}</span>
+    </div>
+    <a href="{{ url_for('logout') }}" class="logout-link">Sign out</a>
   </div>
 </div>
 
-<div class="stats-grid">
-  <div class="stat-card">
-    <div class="stat-icon green">👤</div>
-    <div>
-      <div class="stat-value">{{ user_count }}</div>
-      <div class="stat-label">Total Users</div>
+<!-- FLASH MESSAGES -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-bar">
+      {% for category, msg in messages %}
+        <div class="flash-msg {{ category }}">{{ msg }}</div>
+      {% endfor %}
     </div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-icon blue">🛡</div>
-    <div>
-      <div class="stat-value">{{ admin_count }}</div>
-      <div class="stat-label">Admins</div>
-    </div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-icon amber">🌿</div>
-    <div>
-      <div class="stat-value">{{ staff_count }}</div>
-      <div class="stat-label">Staff</div>
-    </div>
-  </div>
+  {% endif %}
+{% endwith %}
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Welcome back, {{ user.name }} 👋</h1>
+  <p>What would you like to view today?</p>
 </div>
 
-<div class="two-col">
-  <!-- Account info -->
-  <div class="card">
-    <div class="card-header">
-      <span class="card-title">My Account</span>
-      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('pwModal').style.display='flex'">Change Password</button>
-    </div>
-    <div class="info-row"><span class="info-label">Name</span><span class="info-val">{{ user.name }}</span></div>
-    <div class="info-row"><span class="info-label">Username</span><span class="info-val">{{ user.id }}</span></div>
-    <div class="info-row"><span class="info-label">Email</span><span class="info-val">{{ user.email or '—' }}</span></div>
-    <div class="info-row">
-      <span class="info-label">Role</span>
-      <span class="info-val"><span class="badge badge-{{ user.role }}">{{ user.role }}</span></span>
-    </div>
+<!-- TILES -->
+<div class="tiles-wrapper">
+
+  <div class="section-label">Performance</div>
+  <div class="tiles-grid">
+    <a href="{{ url_for('overview') }}" class="tile featured">
+      <div class="tile-icon dark">📊</div>
+      <div class="tile-name">Overview</div>
+      <div class="tile-desc">Sales, GP, forecasts and 2026/27 targets</div>
+      <div class="tile-arrow">View →</div>
+    </a>
+    <a href="{{ url_for('todays_figures') }}" class="tile">
+      <div class="tile-icon amber">💰</div>
+      <div class="tile-name">Today's Figures</div>
+      <div class="tile-desc">Daily cashflow — bank balance, RBSIF, net position</div>
+      <div class="tile-arrow">View →</div>
+    </a>
   </div>
 
-  <!-- Quick links -->
-  <div class="card">
-    <div class="card-header"><span class="card-title">Quick Actions</span></div>
-    {% if user.role == 'admin' %}
-    <a href="{{ url_for('admin_users') }}" class="btn btn-primary" style="margin-bottom:.75rem;width:100%;justify-content:center;">👥 Manage Users</a>
-    {% endif %}
-    <button class="btn btn-secondary" style="width:100%;justify-content:center;" onclick="document.getElementById('pwModal').style.display='flex'">🔑 Change Password</button>
+  <div class="section-label">Retford</div>
+  <div class="tiles-grid">
+    <a href="{{ url_for('unaccepted_quotes') }}" class="tile">
+      <div class="tile-icon blue">📋</div>
+      <div class="tile-name">Unaccepted Quotes</div>
+      <div class="tile-desc">284 quotes · £571k total value</div>
+      <div class="tile-arrow">View →</div>
+    </a>
+    <a href="{{ url_for('outstanding_orders') }}" class="tile">
+      <div class="tile-icon green">📦</div>
+      <div class="tile-name">Outstanding Orders</div>
+      <div class="tile-desc">121 orders · £119k outstanding</div>
+      <div class="tile-arrow">View →</div>
+    </a>
+    <a href="{{ url_for('credit_limits') }}" class="tile">
+      <div class="tile-icon red">🚦</div>
+      <div class="tile-name">Credit Limits</div>
+      <div class="tile-desc">1,988 customers · 14 over limit</div>
+      <div class="tile-arrow">View →</div>
+    </a>
   </div>
+
+  <div class="section-label">National Accounts</div>
+  <div class="tiles-grid">
+    <a href="{{ url_for('solar_projects') }}" class="tile">
+      <div class="tile-icon amber">☀️</div>
+      <div class="tile-name">Solar & Key Accounts</div>
+      <div class="tile-desc">44 projects · 69.91 MW · Tim Piggott updates</div>
+      <div class="tile-arrow">View →</div>
+    </a>
+  </div>
+
+  {% if user.role == 'admin' %}
+  <div class="section-label">Admin</div>
+  <div class="tiles-grid">
+    <a href="{{ url_for('admin_users') }}" class="tile">
+      <div class="tile-icon purple">👥</div>
+      <div class="tile-name">Manage Users</div>
+      <div class="tile-desc">Add, remove and reset passwords for team members</div>
+      <div class="tile-arrow">View →</div>
+    </a>
+  </div>
+  {% endif %}
+
 </div>
 
-<!-- Change password modal -->
-<div id="pwModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:999;align-items:center;justify-content:center;">
-  <div class="card" style="width:100%;max-width:400px;animation:fadeUp .25s ease both;">
-    <div class="card-header">
-      <span class="card-title">Change Password</span>
-      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('pwModal').style.display='none'">✕</button>
-    </div>
-    <div id="pwError" style="display:none;" class="flash-msg error" style="margin-bottom:1rem;"></div>
-    <div class="field" style="margin-bottom:1rem;">
-      <label>Current Password</label>
-      <input type="password" id="pwCurrent" style="width:100%;padding:.75rem 1rem;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;outline:none;" placeholder="Current password">
-    </div>
-    <div class="field" style="margin-bottom:1rem;">
-      <label>New Password</label>
-      <input type="password" id="pwNew" style="width:100%;padding:.75rem 1rem;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;outline:none;" placeholder="New password">
-    </div>
-    <div class="field" style="margin-bottom:1.5rem;">
-      <label>Confirm New Password</label>
-      <input type="password" id="pwConfirm" style="width:100%;padding:.75rem 1rem;border:1.5px solid var(--border);border-radius:8px;font-size:.9rem;outline:none;" placeholder="Confirm new password">
-    </div>
-    <div style="display:flex;gap:.75rem;">
-      <button class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('pwModal').style.display='none'">Cancel</button>
-      <button class="btn btn-primary" style="flex:1;" onclick="submitPwChange()">Update Password</button>
-    </div>
-  </div>
-</div>
-
-{% endblock %}
-
-{% block scripts %}
-<script>
-async function submitPwChange() {
-  const current = document.getElementById('pwCurrent').value;
-  const newPw   = document.getElementById('pwNew').value;
-  const confirm = document.getElementById('pwConfirm').value;
-  const errEl   = document.getElementById('pwError');
-
-  errEl.style.display = 'none';
-
-  if (!current || !newPw || !confirm) {
-    errEl.textContent = 'Please fill in all fields.';
-    errEl.style.display = 'flex';
-    return;
-  }
-  if (newPw !== confirm) {
-    errEl.textContent = 'New passwords do not match.';
-    errEl.style.display = 'flex';
-    return;
-  }
-  if (newPw.length < 6) {
-    errEl.textContent = 'Password must be at least 6 characters.';
-    errEl.style.display = 'flex';
-    return;
-  }
-
-  const res = await fetch('/change-password', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({current, new: newPw})
-  });
-  const data = await res.json();
-
-  if (data.ok) {
-    document.getElementById('pwModal').style.display = 'none';
-    document.getElementById('pwCurrent').value = '';
-    document.getElementById('pwNew').value = '';
-    document.getElementById('pwConfirm').value = '';
-    alert('Password updated successfully.');
-  } else {
-    errEl.textContent = data.error || 'Something went wrong.';
-    errEl.style.display = 'flex';
-  }
-}
-</script>
-{% endblock %}
+</body>
+</html>
