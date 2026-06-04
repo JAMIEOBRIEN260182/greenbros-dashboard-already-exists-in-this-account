@@ -261,6 +261,15 @@ def update_figures():
     if current_user.role != "admin":
         return jsonify({"error": "Admin access required"}), 403
     d = request.json
+    print("DEBUG figures received:", d)  # This will show in Render logs
+    
+    # Convert string values to float safely
+    def to_float(val):
+        try:
+            return float(str(val).replace('£','').replace(',','').strip()) if val else 0
+        except:
+            return 0
+
     with get_db() as conn:
         with conn.cursor() as cur:
             cur.execute("""
@@ -269,14 +278,14 @@ def update_figures():
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             """, (
                 d.get("figure_date"),
-                d.get("savings"),
-                d.get("bank_balance"),
-                d.get("holding"),
+                to_float(d.get("savings")),
+                to_float(d.get("bank_balance")),
+                to_float(d.get("holding")),
                 d.get("holding_note",""),
-                d.get("rbsif"),
-                d.get("visas_due"),
-                d.get("net_position"),
-                d.get("if_paid_all"),
+                to_float(d.get("rbsif")),
+                to_float(d.get("visas_due")),
+                to_float(d.get("net_position")),
+                to_float(d.get("if_paid_all")),
                 current_user.name
             ))
         conn.commit()
