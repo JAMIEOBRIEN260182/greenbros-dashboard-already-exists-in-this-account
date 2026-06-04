@@ -298,6 +298,10 @@
       <a href="{{ url_for('overview') }}" class="nav-link {% if request.endpoint == 'overview' %}active{% endif %}">
         <span class="nav-icon">📊</span> Overview
       </a>
+      <div class="nav-section-label">Retford</div>
+      <a href="{{ url_for('unaccepted_quotes') }}" class="nav-link {% if request.endpoint == 'unaccepted_quotes' %}active{% endif %}">
+        <span class="nav-icon">📋</span> Unaccepted Quotes
+      </a>
 
       {% if user.role == 'admin' %}
       <div class="nav-section-label">Admin</div>
