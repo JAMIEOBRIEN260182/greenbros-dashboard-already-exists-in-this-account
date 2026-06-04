@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block title %}Solar Projects & Key Accounts – GreenBros{% endblock %}
+{% block page_title %}Solar Projects & Key Accounts{% endblock %}
+
+{% block extra_styles %}
+.tabs { display:flex; gap:.25rem; margin-bottom:1.5rem; border-bottom:2px solid var(--border); }
+.tab-btn { padding:.65rem 1.25rem; font-family:'Syne',sans-serif; font-weight:600; font-size:.875rem; cursor:pointer; border:none; background:none; color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .15s; }
+.tab-btn.active { color:var(--green); border-bottom-color:var(--green); }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+/* KPI */
+.kpi-row { display:flex; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+.kpi-pill { background:var(--dark); border-radius:var(--radius); padding:.9rem 1.5rem; }
+.kpi-pill .val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.6rem; color:#52b788; letter-spacing:-0.03em; }
+.kpi-pill .lbl { font-size:.7rem; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.5); margin-top:.2rem; }
+.kpi-pill.amber .val { color:#f39c12; }
+.kpi-pill.blue  .val { color:#74b9ff; }
+
+/* Solar table */
+.solar-table { width:100%; border-collapse:collapse; }
+.solar-table th { text-align:left; font-size:.72rem; font-weight:500; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding:.75rem 1rem; border-bottom:1px solid var(--border); cursor:pointer; }
+.solar-table td { padding:.8rem 1rem; border-bottom:1px solid var(--border); font-size:.85rem; vertical-align:top; }
+.solar-table tr:last-child td { border-bottom:none; }
+.solar-table tr:hover td { background:#f9fafb; }
+.mw-val { font-family:'Syne',sans-serif; font-weight:700; color:var(--green); }
+.s-badge { display:inline-block; padding:.2rem .6rem; border-radius:4px; font-size:.72rem; font-weight:600; white-space:nowrap; }
+.s-badge.submitted { background:#d1ecf1; color:#0c5460; }
+.s-badge.awaiting  { background:#fff3cd; color:#856404; }
+
+/* Accounts */
+.accounts-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+@media(max-width:900px){ .accounts-grid{grid-template-columns:1fr;} }
+.account-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem; }
+.account-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.75rem; gap:.5rem; }
+.account-name { font-family:'Syne',sans-serif; font-weight:700; font-size:.95rem; letter-spacing:-0.01em; }
+.account-detail { font-size:.85rem; color:var(--muted); line-height:1.5; }
+.a-badge { display:inline-block; padding:.15rem .55rem; border-radius:4px; font-size:.72rem; font-weight:600; white-space:nowrap; flex-shrink:0; }
+
+.search-bar { margin-bottom:1rem; }
+.search-bar input { width:100%;max-width:400px;padding:.65rem 1rem;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none; }
+.search-bar input:focus { border-color:var(--green-l);box-shadow:0 0 0 3px rgba(82,183,136,.15); }
+{% endblock %}
+
+{% block content %}
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('solar',this)">☀️ Solar Projects (44)</button>
+  <button class="tab-btn" onclick="switchTab('accounts',this)">🤝 Key Account Updates (14)</button>
+</div>
+
+<!-- SOLAR TAB -->
+<div class="tab-panel active" id="tab-solar">
+  <div class="kpi-row">
+    <div class="kpi-pill"><div class="val">44</div><div class="lbl">Total Projects</div></div>
+    <div class="kpi-pill"><div class="val">69.91 MW</div><div class="lbl">Total Capacity</div></div>
+    <div class="kpi-pill amber"><div class="val">30</div><div class="lbl">Application Submitted</div></div>
+    <div class="kpi-pill blue"><div class="val">10</div><div class="lbl">Awaiting Construction</div></div>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" id="solarSearch" placeholder="Search by operator, site or county...">
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table class="solar-table">
+      <thead>
+        <tr>
+          <th onclick="sortSolar('operator')">Operator</th>
+          <th onclick="sortSolar('site')">Site</th>
+          <th onclick="sortSolar('capacity')">Capacity</th>
+          <th onclick="sortSolar('county')">County</th>
+          <th onclick="sortSolar('status')">Status</th>
+          <th onclick="sortSolar('submitted')">App Submitted</th>
+          <th onclick="sortSolar('granted')">Permission</th>
+        </tr>
+      </thead>
+      <tbody id="solarBody"></tbody>
+    </table>
+  </div>
+  <div id="solarCount" style="text-align:center;padding:.75rem;font-size:.82rem;color:var(--muted);"></div>
+</div>
+
+<!-- KEY ACCOUNTS TAB -->
+<div class="tab-panel" id="tab-accounts">
+  <div class="kpi-row">
+    <div class="kpi-pill"><div class="val">149</div><div class="lbl">Target Accounts</div></div>
+    <div class="kpi-pill"><div class="val">25</div><div class="lbl">Renewables</div></div>
+    <div class="kpi-pill amber"><div class="val">£951K</div><div class="lbl">KWL Tender Value</div></div>
+    <div class="kpi-pill blue"><div class="val">67%</div><div class="lbl">Brevo Open Rate</div></div>
+  </div>
+
+  <div style="background:#d4edda;border:1px solid #c3e6cb;border-radius:var(--radius);padding:.9rem 1.25rem;margin-bottom:1.5rem;font-size:.875rem;color:#155724;">
+    📅 <strong>Mid-April to Mid-May 2026</strong> — Tim Piggott, National Key Accounts Manager
+  </div>
+
+  <div class="accounts-grid">
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-name">ALBEMARLE HOMES</div>
+        <span class="a-badge" style="background:#fff3cd;color:#856404;">PENDING</span>
+      </div>
+      <div class="account-detail">Met buying team. 2 sites ongoing (Armthorpe & Beckingham). 3 further tenders for 230+ plots — written into Albemarle spec June/July 26. Tri-party agreement pending: Albemarle–JR Cockin–Green Bros.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-name">KWL HULL SOCIAL HOUSING</div>
+        <span class="a-badge" style="background:#fff3cd;color:#856404;">PENDING</span>
+      </div>
+      <div class="account-detail">Requote for plumbing — from 26 tenders we are in last 3. Advised tender reduction, reduced margin. Tender value £951K.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-name">EN PROCURE – SHEFFIELD CITY COUNCIL</div>
+        <span class="a-badge" style="background:#d1ecf1;color:#0c5460;">SUBMITTED</span>
+      </div>
+      <div class="account-detail">Online tender supply of kitchens for Sheffield social housing (Carbrook). Project starts July 26. Value £155K.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-name">PROCONTRACT TENDER</div>
+        <span class="a-badge" style="background:#fff3cd;color:#856404;">PENDING</span>
+      </div>
+      <div class="account-detail">Supply of building materials — Yorkshire Combined Authorities. 24-month contract (Plumbing & Heating) starting August 26. Value £760K.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-name">EQUANS ROTHERHAM</div>
+        <span class="a-badge" style="background:#fff3cd;color:#856404;">PENDING</span>
+      </div>
+      <div class="account-detail">Laurie Crabtree — Doncaster Social Housing, Edlington. Sub contractor & project list requested. Presentation to procurement team pending.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-name">ST LEGER HOMES DONCASTER</div>
+        <span class="a-badge" style="background:#d4edda;color:#155724;">REGISTERED</span>
+      </div>
+      <div class="account-detail">Lee Winterbottom (Property Dir). Registered on PROACTIS and PROCONTRACT NORTH portals. Electrical/plumbing contract renewal not due until early 2027.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-name">KEEPMOAT HOMES</div>
+        <span class="a-badge" style="background:#fff3cd;color:#856404;">PENDING</span>
+      </div>
+      <div class="account-detail">Paul Jackson — plot pricing submitted (electrics). Further discussions needed for plumbing and kitchens. Subbie list requested.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-name">DYNEX LINCOLN</div>
+        <span class="a-badge" style="background:#d4edda;color:#155724;">ACTIVE</span>
+      </div>
+      <div class="account-detail">£235K/year elec spend (in-house maintenance). David Monks (Head of Procurement) compiling list for pricing against CEF Lincoln.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-name">WILLMOTT DIXON – GATEWAY ONE</div>
+        <span class="a-badge" style="background:#d4edda;color:#155724;">REGISTERED</span>
+      </div>
+      <div class="account-detail">Invited to 'Meet the Gateway One Buyer' procurement event. Registered via Gemma (Business Don) and Richard Stowell (WD).</div>
+    </div>
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-name">STRATA HOMES</div>
+        <span class="a-badge" style="background:#fff3cd;color:#856404;">PENDING</span>
+      </div>
+      <div class="account-detail">Sara Page — electrics, plumbing, kitchens and bathrooms. Subbie list requested.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-name">VOLKER RAIL</div>
+        <span class="a-badge" style="background:#d1ecf1;color:#0c5460;">IN PROGRESS</span>
+      </div>
+      <div class="account-detail">Awaiting communication from Joanne Kent (Supplier Assurance Manager) to complete registration for Volker Supplier Portal. RISQS criteria ongoing.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-name">BERNESLAI HOMES BARNSLEY</div>
+        <span class="a-badge" style="background:#f0f0f0;color:#6b7f72;">NOTE</span>
+      </div>
+      <div class="account-detail">JPS (Jewsons) taking over all direct purchasing on behalf of Berneslai. Sub contractors not under this rule but push to reduce over 18 months.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-name">DONCASTER COLLEGE</div>
+        <span class="a-badge" style="background:#d4edda;color:#155724;">CONFIRMED</span>
+      </div>
+      <div class="account-detail">AICO Education Day 18th May. 16 students registered to attend AICO training.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-name">BREVO CAMPAIGN</div>
+        <span class="a-badge" style="background:#d4edda;color:#155724;">COMPLETE</span>
+      </div>
+      <div class="account-detail">Sent 29.04. Plumbing, electrical and renewables message. 268 recipients — 67% open rate.</div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+const SOLAR = [{"operator": "British Solar Renewables", "site": "Butt Lane, Hooton Pagnell -  Solar Farm ", "status": "Application Submitted", "capacity": 49.9, "county": "South Yorkshire", "postcode": "DN5 7BW", "submitted": "2025-12-05", "granted": "nan", "address": "Butt Lane, Hooton Pagnell, Doncaster"}, {"operator": "Suez Recycling and Recovery UK Limited", "site": "Seghill Household Waste Recovery Centre -Solar Panels", "status": "Application Submitted", "capacity": 5.8, "county": "Northumberland", "postcode": "NE23 7DY", "submitted": "2025-12-08", "granted": "nan", "address": "Seghill Household Waste Recovery Centre, Seaton Delaval, Cramlington"}, {"operator": "Sytner Group Limited", "site": "Sytner BMW Sheffield, Brightside Way - Solar Panels", "status": "Awaiting Construction", "capacity": 1.03, "county": "South Yorkshire", "postcode": "S9 2RQ", "submitted": "2025-10-28", "granted": "2025-12-15", "address": "Sytner BMW Sheffield Brightside Way "}, {"operator": "Bowlers Exhibition Centre", "site": "Bowless Exhibition, Longeridge Road -  Solar Panels Array", "status": "Awaiting Construction", "capacity": 0.99, "county": "Greater Manchester", "postcode": "M17 1SN", "submitted": "2025-10-23", "granted": "2025-12-15", "address": "Bowless Exhibition, Longeridge Road, Roafford Paris, Manchester"}, {"operator": "Acomb Parish Council", "site": "Acomb Village, Acomb - Solar Panels", "status": "Awaiting Construction", "capacity": 0.99, "county": "Northumberland", "postcode": "NE46 4RQ", "submitted": "2024-05-10", "granted": "2025-12-15", "address": "E/O Acomb Village, Acomb, Hexham"}, {"operator": "East Lancashire Hospitals NHS Trust", "site": "Burnley General Hospital, Casterton Avenue - Solar Panels", "status": "Application Submitted", "capacity": 0.97, "county": "Lancashire", "postcode": "BB10 2PQ", "submitted": "2025-12-11", "granted": "nan", "address": "Burnley General Hospital Casterton Avenue "}, {"operator": "Northern Lincolnshire and Goole NHS Foundation Trust", "site": "Diana Princess Of Wales Hospital - Solar Panels", "status": "Application Submitted", "capacity": 0.81, "county": "Lincolnshire", "postcode": "DN33 2BA", "submitted": "2025-12-11", "granted": "nan", "address": "Diana Princess Of Wales Hospital, Scartho Road, Grimsby"}, {"operator": "J R Rix & Sons Limited", "site": "Victory Leisure Homes - Solar Panels", "status": "Application Submitted", "capacity": 0.76, "county": "East Riding of Yorkshire", "postcode": "HU7 0BZ", "submitted": "2025-12-02", "granted": "nan", "address": "Victory Leisure Homes, Victoria House, Leads Road, Kingston Upon Hull"}, {"operator": "University Hospitals of Derby and Burton NHS Foundation Trust", "site": "Florence Nightingale Community Hospital, London Road -  Solar Panels", "status": "Application Submitted", "capacity": 0.74, "county": "Derbyshire", "postcode": "DE1 2QY", "submitted": "2025-12-15", "granted": "nan", "address": "Florence Nightingale Community Hospital, London Road, Derby"}, {"operator": "Chatsworth Settlement Trustees", "site": "Halton East Quarries - Solar Panels", "status": "Application Submitted", "capacity": 0.65, "county": "North Yorkshire", "postcode": "BD23 6EH", "submitted": "2025-11-06", "granted": "nan", "address": "Halton East Quarries, Halton East, Skipton"}, {"operator": "Cranswick Country Foods", "site": "Cranswick Foods, William Wright Dock - Solar PV System", "status": "Application Submitted", "capacity": 0.63, "county": "East Riding of Yorkshire", "postcode": "HU1 2ET", "submitted": "2025-12-15", "granted": "nan", "address": "Cranswick Foods, William Wright Dock, Neptune Street"}, {"operator": "Tesco Stores Limited", "site": "Tesco - Solar Panels", "status": "Awaiting Construction", "capacity": 0.62, "county": "West Yorkshire", "postcode": "LS14 6JD", "submitted": "2025-09-25", "granted": "2025-11-17", "address": "5 Seacroft Avenue, Seacroft, Leeds"}, {"operator": "York and Scarborough Teaching Hospital NHS Foundation Trust", "site": "York District Hospital, Wigginton Road -  Solar Panels", "status": "Application Submitted", "capacity": 0.55, "county": "North Yorkshire", "postcode": "YO31 8HE", "submitted": "2025-12-03", "granted": "nan", "address": "York District Hospital, Wigginton Road"}, {"operator": "Lynx Precast Limited", "site": "Lynx Precast,  Lynefield Park - Solar PV Panels", "status": "Awaiting Construction", "capacity": 0.49, "county": "Northumberland", "postcode": "NE63 9YH", "submitted": "2025-10-14", "granted": "2025-12-08", "address": "Lynx Precast Limited, Lynefield Park, Lynemouth, Ashington"}, {"operator": "York and Scarborough Teaching Hospital NHS Foundation Trust", "site": "Scarborough Hospital, Woodlands Drive - Solar Panels", "status": "Application Submitted", "capacity": 0.48, "county": "North Yorkshire", "postcode": "YO12 6QL", "submitted": "2025-12-15", "granted": "nan", "address": "Scarborough Hospital, Woodlands Drive, Scarborough"}, {"operator": "Clear Futures", "site": "Woodford Leisure Centre, Holderness Road - Solar Panels", "status": "Application Submitted", "capacity": 0.46, "county": "East Riding of Yorkshire", "postcode": "HU8 8JU", "submitted": "2025-11-28", "granted": "nan", "address": "Woodford Leisure Centre, Holderness Road, Kingston Upon Hull"}, {"operator": "Emmanuel Schools Foundation", "site": "Bede Academy North, Sixth Avenue - Solar PV Panels", "status": "Awaiting Construction", "capacity": 0.45, "county": "Northumberland", "postcode": "NE24 2SY", "submitted": "2025-10-15", "granted": "2025-12-09", "address": "Bede Academy North, Sixth Avenue, Blyth"}, {"operator": "North Yorkshire County Council", "site": "Ripon Community Leisure Centre, Dallamires Lane - Solar Panels", "status": "Application Submitted", "capacity": 0.32, "county": "North Yorkshire", "postcode": "HG4 1TT", "submitted": "2025-12-22", "granted": "nan", "address": "Ripon Community Leisure Centre, Dallamires Lane"}, {"operator": "M H Poskitt Limited", "site": "M.H.Poskitt, Weeland Road - Solar Panels", "status": "Awaiting Construction", "capacity": 0.3, "county": "East Riding of Yorkshire", "postcode": "DN14 0FL", "submitted": "2025-09-16", "granted": "2025-11-28", "address": "M.H.Poskitt, Weeland Road, Kellington, Goole"}, {"operator": "Delta Academies Trust", "site": "Don Valley Academy, Jossey Lane -  Solar PV Panels", "status": "Awaiting Construction", "capacity": 0.3, "county": "South Yorkshire", "postcode": "DN5 9DD", "submitted": "2025-10-17", "granted": "2025-12-05", "address": "Don Valley Academy, Jossey Lane, Scawthorpe, Doncaster"}, {"operator": "Sainsburys Supermarkets Limited", "site": "Sainsburys Supermarket, Barlborough Avenue -  Solar Panels", "status": "Application Submitted", "capacity": 0.28, "county": "Cleveland", "postcode": "TS19 0QB", "submitted": "2025-12-17", "granted": "nan", "address": "Sainsburys Supermarket Barlborough Avenue "}, {"operator": "Sytner Group Limited", "site": "Huddersfield Audi, Leeds Road - Solar Panels", "status": "Awaiting Construction", "capacity": 0.25, "county": "West Yorkshire", "postcode": "HD2 1UA", "submitted": "2025-10-08", "granted": "2025-12-03", "address": "Huddersfield Audi, Trident Business Park, Leeds Road, Deighton, Huddersfield"}, {"operator": "Selby War Memorial Hospital", "site": "Selby War Memorial Hospital, Doncaster Road - Solar Panels", "status": "Application Submitted", "capacity": 0.25, "county": "North Yorkshire", "postcode": "YO8 9BX", "submitted": "2025-12-02", "granted": "nan", "address": "Selby War Memorial Hospital, Doncaster Road, Selby"}, {"operator": "Sainsburys Supermarkets Limited", "site": "Sainsburys, Morgan Drive -  Solar Panels", "status": "Application Submitted", "capacity": 0.19, "county": "Cleveland", "postcode": "TS14 7DH", "submitted": "2025-12-15", "granted": "nan", "address": "Sainsburys, Morgan Drive, Guisborough"}, {"operator": "JF Longster And Son", "site": "New Causeway Farm, Fellbeck - Solar PV Panels", "status": "Application Submitted", "capacity": 0.19, "county": "North Yorkshire", "postcode": "HG3 5EW", "submitted": "2025-12-09", "granted": "nan", "address": "New Causeway Farm, Fellbeck, Harrogate"}, {"operator": "City of York Council", "site": "Yearsley Swimming Baths, Haleys Terrace -  Solar Panels", "status": "Awaiting Construction", "capacity": 0.18, "county": "North Yorkshire", "postcode": "YO31 8SB", "submitted": "2025-09-29", "granted": "2025-11-19", "address": "Yearsley Swimming Baths Haleys Terrace "}, {"operator": "Sainsburys Supermarkets Limited", "site": "Sainsburys, Wreakes Lane - Solar Panels", "status": "Application Submitted", "capacity": 0.17, "county": "Derbyshire", "postcode": "S18 1NW", "submitted": "2025-12-12", "granted": "nan", "address": "Sainsbury's Wreakes Lane "}, {"operator": "Dalkia Energy Services Limited", "site": "Churchill Unit Oncology Royal Bolton Hospital - Solar Panels", "status": "Application Submitted", "capacity": 0.17, "county": "Lancashire", "postcode": "BL4 0JR", "submitted": "2025-12-15", "granted": "nan", "address": "Churchill Unit Oncology Royal Bolton Hospital, Churchill Drive, Bolton"}, {"operator": "HEREF Trafford Park Property Unit Trust", "site": "Pisces, Mosley Road, Unit B - Solar Panels", "status": "Application Submitted", "capacity": 0.17, "county": "Greater Manchester", "postcode": "M17 1PF", "submitted": "2025-12-08", "granted": "nan", "address": "Unit B, Pisces, Mosley Road, Trafford, Manchester"}, {"operator": "York and Scarborough Teaching Hospital NHS Foundation Trust", "site": "Malton And Norton District Hospital, Hospital Road -  Solar Panels", "status": "Application Submitted", "capacity": 0.17, "county": "North Yorkshire", "postcode": "YO17 7NG", "submitted": "2025-12-02", "granted": "nan", "address": "Malton And Norton District Hospital, Hospital Road, Malton"}, {"operator": "North Yorkshire County Council", "site": "Whitby Leisure Centre, West Cliff Avenue - Solar Panels", "status": "Application Submitted", "capacity": 0.17, "county": "North Yorkshire", "postcode": "YO21 3HT", "submitted": "2025-12-02", "granted": "nan", "address": "Whitby Leisure Centre, West Cliff Avenue"}, {"operator": "Fit Out Uk Limited", "site": "Premier Logistics Park, Churchill Road - Solar PV Panels", "status": "Application Submitted", "capacity": 0.16, "county": "South Yorkshire", "postcode": "DN1 2TG", "submitted": "2025-12-09", "granted": "nan", "address": "Premier Logistics Park, Unit 1a, Churchill Road, Wheatley, Doncaster"}, {"operator": "Sytner Group Limited", "site": "Sytner Group, Abbeyfield Road - Solar Panels", "status": "Application Submitted", "capacity": 0.16, "county": "Nottinghamshire", "postcode": "NG7 2SZ", "submitted": "2025-12-11", "granted": "nan", "address": "11 Abbeyfield Road, Nottingham"}, {"operator": "Ashcroft Electrical Services Limited", "site": "The Food Warehouse Iceland, Pilsworth Road -Solar Panels", "status": "Application Submitted", "capacity": 0.16, "county": "Lancashire", "postcode": "BL9 8RS", "submitted": "2025-12-22", "granted": "nan", "address": "The Food Warehouse (Iceland), Park 66, Pilsworth Road"}, {"operator": "Jepson & Company", "site": "Jepson And Company, East Bank Road - Solar Panels", "status": "Application Submitted", "capacity": 0.0, "county": "South Yorkshire", "postcode": "S2 3QN", "submitted": "2025-12-09", "granted": "nan", "address": "Jepson And Co Ltd 44 East Bank Road"}, {"operator": "TROY FOODS", "site": "George Mann Way, Hunslet - Solar Panels", "status": "Application Submitted", "capacity": 0.0, "county": "West Yorkshire", "postcode": "LS10 1DR", "submitted": "2025-12-17", "granted": "nan", "address": "1A George Mann Way Hunslet "}, {"operator": "Manchester University NHS Foundation Trust", "site": "Manchester Royal Infirmary, Oxford Road - Solar Panels", "status": "Application Submitted", "capacity": 0.0, "county": "Greater Manchester", "postcode": "M13 9WL", "submitted": "2025-12-09", "granted": "nan", "address": "Manchester Royal Infirmary, Oxford Road, Manchester"}, {"operator": "Infinis Energy Services Limited", "site": "Gowy Solar Park", "status": "Application Submitted", "capacity": 0.0, "county": "Cheshire", "postcode": "CH2 4JP", "submitted": "2025-11-21", "granted": "nan", "address": "Gowy Marsh Waste Disposal Site, Ince Lane, Wimbolds Trafford , Chester"}, {"operator": "Natural Stone Surfaces Limited", "site": "Frith Knoll Road, Walker Industrial Park, Units 1-5 - Solar PV Modules", "status": "Application Submitted", "capacity": 0.0, "county": "Derbyshire", "postcode": "SK23 0PG", "submitted": "2025-12-02", "granted": "nan", "address": "Units 1 - 5, Frith Knoll Road, Walker Industrial Park, Chapel-En-Le-Frith, High Peak"}, {"operator": "BTC RE Limited", "site": "Port Of Liverpool Building, Mann Island - Solar Panels", "status": "Application Submitted", "capacity": 0.0, "county": "Merseyside", "postcode": "L3 1BY", "submitted": "2025-12-08", "granted": "nan", "address": "Port Of Liverpool Building, Mann Island, Liverpool"}, {"operator": "nan", "site": "nan", "status": "nan", "capacity": 0.0, "county": "nan", "postcode": "nan", "submitted": "nan", "granted": "nan", "address": "nan"}, {"operator": "YELLOW HIGHLIGHTED = CONTACTED - PENDING", "site": "nan", "status": "nan", "capacity": 0.0, "county": "nan", "postcode": "nan", "submitted": "nan", "granted": "nan", "address": "nan"}, {"operator": "RED HIGHLIGHTED = WASTE OF TIME VARIOUS REASONS", "site": "nan", "status": "nan", "capacity": 0.0, "county": "nan", "postcode": "nan", "submitted": "nan", "granted": "nan", "address": "nan"}, {"operator": "WHITE HIGHLIGHTED = STILL TRYING TO MAKE CONTACT", "site": "nan", "status": "nan", "capacity": 0.0, "county": "nan", "postcode": "nan", "submitted": "nan", "granted": "nan", "address": "nan"}];
+let sFiltered = [...SOLAR]; let sSortKey='capacity'; let sSortAsc=false;
+
+function renderSolar() {
+  const tbody = document.getElementById('solarBody');
+  tbody.innerHTML = '';
+  sFiltered.forEach(p => {
+    const badge = p.status === 'Awaiting Construction'
+      ? '<span class="s-badge awaiting">Awaiting Construction</span>'
+      : '<span class="s-badge submitted">App Submitted</span>';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="max-width:180px;">${p.operator}</td>
+      <td style="max-width:200px;font-size:.8rem;">${p.site}</td>
+      <td><span class="mw-val">${p.capacity} MW</span></td>
+      <td>${p.county}</td>
+      <td>${badge}</td>
+      <td style="font-size:.8rem;">${p.submitted}</td>
+      <td style="font-size:.8rem;">${p.granted}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('solarCount').textContent = `Showing ${sFiltered.length} of ${SOLAR.length} projects`;
+}
+
+function sortSolar(key) {
+  if(sSortKey===key) sSortAsc=!sSortAsc; else { sSortKey=key; sSortAsc=key!=='capacity'; }
+  sFiltered.sort((a,b) => {
+    let va=a[key], vb=b[key];
+    if(typeof va==='string') va=va.toLowerCase(), vb=vb.toLowerCase();
+    return sSortAsc ? (va>vb?1:-1) : (va<vb?1:-1);
+  });
+  renderSolar();
+}
+
+document.getElementById('solarSearch').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  sFiltered = SOLAR.filter(p =>
+    p.operator.toLowerCase().includes(q) ||
+    p.site.toLowerCase().includes(q) ||
+    p.county.toLowerCase().includes(q)
+  );
+  sortSolar(sSortKey);
+});
+
+renderSolar();
+</script>
+{% endblock %}
