@@ -293,20 +293,30 @@ async function submitFigures() {
   const errEl = document.getElementById('modalError');
   errEl.style.display = 'none';
 
+  function readVal(id) {
+    const raw = document.getElementById(id).value.trim();
+    const cleaned = raw.replace(/£/g,'').replace(/,/g,'');
+    const num = parseFloat(cleaned);
+    return isNaN(num) ? 0 : num;
+  }
+
+  const dateRaw = document.getElementById('figDate').value.trim();
+  const dateParsed = parseDate(dateRaw);
+
   const data = {
-    figure_date:  parseDate(document.getElementById('figDate').value),
-    savings:      parseFloat(document.getElementById('figSavings').value) || 0,
-    bank_balance: parseFloat(document.getElementById('figBank').value) || 0,
-    holding:      parseFloat(document.getElementById('figHolding').value) || 0,
+    figure_date:  dateParsed,
+    savings:      readVal('figSavings'),
+    bank_balance: readVal('figBank'),
+    holding:      readVal('figHolding'),
     holding_note: document.getElementById('figHoldingNote').value,
-    rbsif:        parseFloat(document.getElementById('figRbsif').value) || 0,
-    visas_due:    parseFloat(document.getElementById('figVisas').value) || 0,
-    net_position: parseFloat(document.getElementById('figNet').value) || 0,
-    if_paid_all:  parseFloat(document.getElementById('figIfPaid').value) || 0,
+    rbsif:        readVal('figRbsif'),
+    visas_due:    readVal('figVisas'),
+    net_position: readVal('figNet'),
+    if_paid_all:  readVal('figIfPaid'),
   };
 
-  if (!data.figure_date) {
-    errEl.textContent = 'Please select a date.';
+  if (!data.figure_date || data.figure_date === '--') {
+    errEl.textContent = 'Please enter a valid date e.g. 03/06/2026';
     errEl.style.display = 'block';
     return;
   }
