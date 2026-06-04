@@ -307,6 +307,10 @@
       <a href="{{ url_for('credit_limits') }}" class="nav-link {% if request.endpoint == 'credit_limits' %}active{% endif %}">
         <span class="nav-icon">🚦</span> Credit Limits
       </a>
+      <div class="nav-section-label">Performance</div>
+      <a href="{{ url_for('sales_forecast') }}" class="nav-link {% if request.endpoint == 'sales_forecast' %}active{% endif %}">
+        <span class="nav-icon">📈</span> Sales Forecast
+      </a>
       <div class="nav-section-label">National Accounts</div>
       <a href="{{ url_for('solar_projects') }}" class="nav-link {% if request.endpoint == 'solar_projects' %}active{% endif %}">
         <span class="nav-icon">☀️</span> Solar & Key Accounts
