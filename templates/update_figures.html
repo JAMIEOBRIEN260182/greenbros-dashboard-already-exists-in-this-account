@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Update Figures – GreenBros{% endblock %}
+{% block page_title %}Update Today's Figures{% endblock %}
+
+{% block extra_styles %}
+.update-form { max-width: 600px; }
+.field { margin-bottom: 1.25rem; }
+.field label { display:block; font-size:.78rem; font-weight:500; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin-bottom:.4rem; }
+.form-input { width:100%; padding:.8rem 1rem; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:1rem; color:var(--dark); outline:none; }
+.form-input:focus { border-color:var(--green-l); box-shadow:0 0 0 3px rgba(82,183,136,.15); }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+{% endblock %}
+
+{% block content %}
+<div class="update-form">
+  <div class="card">
+    <form method="POST" action="/todays-figures/update">
+      <div class="form-grid">
+        <div class="field" style="grid-column:1/-1;">
+          <label>Date (DD/MM/YYYY)</label>
+          <input class="form-input" type="text" name="figure_date" placeholder="03/06/2026" required>
+        </div>
+        <div class="field">
+          <label>Savings Account (£)</label>
+          <input class="form-input" type="text" name="savings" placeholder="27283.30">
+        </div>
+        <div class="field">
+          <label>Bank Balance (£)</label>
+          <input class="form-input" type="text" name="bank_balance" placeholder="16726.84">
+        </div>
+        <div class="field">
+          <label>Holding (£)</label>
+          <input class="form-input" type="text" name="holding" placeholder="307415.36">
+        </div>
+        <div class="field" style="grid-column:1/-1;">
+          <label>Holding Note (optional)</label>
+          <input class="form-input" type="text" name="holding_note" placeholder="e.g. NOT INC £60,896.39 BATT CABLES">
+        </div>
+        <div class="field">
+          <label>RBSIF Funds in Use (£)</label>
+          <input class="form-input" type="text" name="rbsif" placeholder="549413.97">
+        </div>
+        <div class="field">
+          <label>Visa's Due in on Mace (£)</label>
+          <input class="form-input" type="text" name="visas_due" placeholder="78418.05">
+        </div>
+        <div class="field">
+          <label>Net Position ex. Savings (£)</label>
+          <input class="form-input" type="text" name="net_position" placeholder="-454269.08">
+        </div>
+        <div class="field">
+          <label>If Paid Everything (£)</label>
+          <input class="form-input" type="text" name="if_paid_all" placeholder="-761684.44">
+        </div>
+      </div>
+      <div style="display:flex;gap:.75rem;margin-top:1rem;">
+        <a href="{{ url_for('todays_figures') }}" class="btn btn-secondary" style="flex:1;justify-content:center;">Cancel</a>
+        <button type="submit" class="btn btn-primary" style="flex:1;">💾 Save Figures</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
