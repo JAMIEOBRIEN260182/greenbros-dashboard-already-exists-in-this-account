@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Sales Forecast – GreenBros{% endblock %}
+{% block page_title %}Sales Forecast FY26–FY30{% endblock %}
+
+{% block extra_styles %}
+.forecast-wrap { max-width: 1100px; }
+.chart-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
+.chart-card-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; color:var(--dark); margin-bottom:1.25rem; }
+.kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:.75rem; margin-bottom:1.25rem; }
+.kpi { border-radius:10px; padding:1rem 1.25rem; border:1px solid var(--border); }
+.kpi .yr { font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin-bottom:.3rem; }
+.kpi .val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.3rem; letter-spacing:-0.02em; }
+.kpi .np { font-size:.75rem; margin-top:.25rem; }
+.kpi.actual { border-color:#2d6a4f; background:#f0faf5; }
+.kpi.actual .val { color:#2d6a4f; }
+.kpi.actual .np { color:#52b788; }
+.kpi.forecast { border-color:#f39c12; background:#fffbf0; }
+.kpi.forecast .val { color:#d68910; }
+.kpi.forecast .np { color:#d68910; }
+.gap-note { background:#d4edda; border:1px solid #c3e6cb; border-radius:10px; padding:1rem 1.25rem; font-size:.875rem; color:#155724; margin-bottom:1.25rem; }
+.legend { display:flex; gap:1.5rem; margin-top:1rem; flex-wrap:wrap; }
+.legend-item { display:flex; align-items:center; gap:.4rem; font-size:.8rem; color:var(--muted); }
+.legend-dot { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+{% endblock %}
+
+{% block content %}
+<div class="forecast-wrap">
+
+<div class="kpi-row">
+  <div class="kpi actual">
+    <div class="yr">FY25/26 Actual</div>
+    <div class="val">£6.74m</div>
+    <div class="np">NP 4.0% · £269k</div>
+  </div>
+  <div class="kpi forecast">
+    <div class="yr">FY26/27 Target</div>
+    <div class="val">£9.4m</div>
+    <div class="np">NP 4.5% · £423k</div>
+  </div>
+  <div class="kpi forecast">
+    <div class="yr">FY27/28 Target</div>
+    <div class="val">£11.6m</div>
+    <div class="np">NP 5.5% · £638k</div>
+  </div>
+  <div class="kpi forecast">
+    <div class="yr">FY28/29 Target</div>
+    <div class="val">£13.9m</div>
+    <div class="np">NP 6.5% · £904k</div>
+  </div>
+  <div class="kpi forecast">
+    <div class="yr">FY29/30 Target</div>
+    <div class="val">£16.7m</div>
+    <div class="np">NP 7.0% · £1.17m</div>
+  </div>
+</div>
+
+<div class="gap-note">
+  <strong>Growth Gap:</strong> FY26/27 target of £9.4m is <strong>+£2.66m (+39.5%)</strong> above FY25/26 actuals — driven by +20% organic growth plus Branch 3. By FY29/30 the plan targets <strong>£16.7m</strong> — 2.5x current revenue.
+</div>
+
+<div class="chart-card">
+  <div class="chart-card-title">Revenue vs Net Profit — Actual & Forecast (£m)</div>
+  <canvas id="mainChart" height="280"></canvas>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#2d6a4f"></div> Actual Revenue</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f39c12"></div> Forecast Revenue</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#52b788"></div> Actual Net Profit</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ffd166"></div> Forecast Net Profit</div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-card-title">Revenue by Branch — Stacked (£m)</div>
+  <canvas id="branchChart" height="240"></canvas>
+</div>
+
+<div class="chart-card">
+  <div class="chart-card-title">Net Profit % Margin Progression</div>
+  <canvas id="marginChart" height="180"></canvas>
+</div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const years = ['FY25/26 Actual','FY26/27 Target','FY27/28 Target','FY28/29 Target','FY29/30 Target'];
+
+new Chart(document.getElementById('mainChart'), {
+  data: {
+    labels: years,
+    datasets: [
+      { type:'bar', label:'Actual Revenue', data:[6.74,null,null,null,null], backgroundColor:'#2d6a4f', borderRadius:6, yAxisID:'y' },
+      { type:'bar', label:'Forecast Revenue', data:[null,9.4,11.6,13.9,16.7], backgroundColor:'#f39c12', borderRadius:6, yAxisID:'y' },
+      { type:'line', label:'Actual NP', data:[0.269,null,null,null,null], borderColor:'#52b788', backgroundColor:'rgba(82,183,136,.15)', pointRadius:7, pointBackgroundColor:'#52b788', tension:0.3, yAxisID:'y2' },
+      { type:'line', label:'Forecast NP', data:[null,0.423,0.638,0.904,1.169], borderColor:'#ffd166', backgroundColor:'rgba(255,209,102,.1)', pointRadius:7, pointBackgroundColor:'#ffd166', borderDash:[6,4], tension:0.3, yAxisID:'y2' }
+    ]
+  },
+  options: { responsive:true, interaction:{mode:'index'}, plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` £${ctx.raw?.toFixed(2)}m`}}},
+    scales: {
+      x:{grid:{display:false}},
+      y:{position:'left',title:{display:true,text:'Revenue (£m)'},grid:{color:'#f5f5f5'},ticks:{callback:v=>`£${v}m`}},
+      y2:{position:'right',title:{display:true,text:'Net Profit (£m)'},grid:{display:false},ticks:{callback:v=>`£${v?.toFixed(2)}m`}}
+    }
+  }
+});
+
+new Chart(document.getElementById('branchChart'), {
+  type:'bar',
+  data: { labels:years, datasets:[
+    { label:'Retford', data:[2.86,3.01,3.5,4.2,5.0], backgroundColor:'#2d6a4f', borderRadius:4 },
+    { label:'Doncaster', data:[3.88,4.07,4.6,5.2,6.0], backgroundColor:'#52b788', borderRadius:4 },
+    { label:'Branch 3 (FY27)', data:[0,2.32,3.5,4.5,5.7], backgroundColor:'#f39c12', borderRadius:4 },
+  ]},
+  options: { responsive:true, plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:ctx=>` £${ctx.raw?.toFixed(2)}m`}}},
+    scales:{ x:{stacked:true,grid:{display:false}}, y:{stacked:true,grid:{color:'#f5f5f5'},ticks:{callback:v=>`£${v}m`}} }
+  }
+});
+
+new Chart(document.getElementById('marginChart'), {
+  type:'line',
+  data: { labels:years, datasets:[{
+    label:'Net Profit %', data:[4.0,4.5,5.5,6.5,7.0],
+    borderColor:'#2d6a4f', backgroundColor:'rgba(45,106,79,.1)',
+    pointRadius:7, pointBackgroundColor:['#2d6a4f','#f39c12','#f39c12','#f39c12','#f39c12'],
+    fill:true, tension:0.4
+  }]},
+  options: { responsive:true, plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw}% NP margin`}}},
+    scales:{ x:{grid:{display:false}}, y:{grid:{color:'#f5f5f5'},ticks:{callback:v=>`${v}%`},min:0,max:9} }
+  }
+});
+</script>
+{% endblock %}
