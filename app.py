@@ -281,3 +281,8 @@ def update_figures():
             ))
         conn.commit()
     return jsonify({"ok": True})
+
+@app.route("/outstanding-orders")
+@login_required
+def outstanding_orders():
+    return render_template("outstanding_orders.html", user=current_user)
