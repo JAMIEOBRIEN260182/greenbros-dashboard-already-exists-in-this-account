@@ -1,0 +1,389 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users – GreenBros{% endblock %}
+{% block page_title %}Manage Users{% endblock %}
+
+{% block topbar_actions %}
+<button class="btn btn-primary" onclick="openAddModal()">+ Add User</button>
+{% endblock %}
+
+{% block extra_styles %}
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table th {
+  text-align: left;
+  font-size: .75rem;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.users-table td {
+  padding: .9rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: .9rem;
+  vertical-align: middle;
+}
+
+.users-table tr:last-child td { border-bottom: none; }
+
+.users-table tr:hover td { background: #f9fafb; }
+
+.avatar-cell {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.table-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--green-l);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: .8rem;
+  color: var(--dark);
+  flex-shrink: 0;
+}
+
+.badge { display:inline-block; padding:.2rem .65rem; border-radius:20px; font-size:.75rem; font-weight:500; }
+.badge-admin  { background:#d4edda; color:#155724; }
+.badge-staff  { background:#d1ecf1; color:#0c5460; }
+
+.actions-cell { display:flex; gap:.4rem; align-items:center; }
+
+/* Modal overlay */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal-box {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  width: 100%;
+  max-width: 440px;
+  animation: fadeUp .2s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.modal-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.field { margin-bottom: 1rem; }
+
+label {
+  display: block;
+  font-size: .78rem;
+  font-weight: 500;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .4rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: .75rem 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem;
+  color: var(--dark);
+  background: #fff;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.form-input:focus {
+  border-color: var(--green-l);
+  box-shadow: 0 0 0 3px rgba(82,183,136,.15);
+}
+
+select.form-input { cursor: pointer; }
+
+.modal-actions { display:flex; gap:.75rem; margin-top:1.5rem; }
+.modal-actions .btn { flex:1; justify-content:center; }
+
+.modal-error {
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  padding: .65rem .9rem;
+  border-radius: 8px;
+  font-size: .85rem;
+  margin-bottom: 1rem;
+  display: none;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+}
+
+.empty-state .empty-icon { font-size: 2.5rem; margin-bottom: .75rem; }
+.empty-state p { font-size: .9rem; }
+{% endblock %}
+
+{% block content %}
+
+<div class="card" style="padding:0;overflow:hidden;">
+  {% if users %}
+  <table class="users-table">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for username, data in users.items() %}
+      <tr data-username="{{ username }}">
+        <td>
+          <div class="avatar-cell">
+            <div class="table-avatar">{{ data.name[0].upper() }}</div>
+            <span>{{ data.name }}</span>
+          </div>
+        </td>
+        <td><code style="font-size:.85rem;background:var(--cream);padding:.15rem .4rem;border-radius:4px;">{{ username }}</code></td>
+        <td>{{ data.email or '—' }}</td>
+        <td><span class="badge badge-{{ data.role }}">{{ data.role }}</span></td>
+        <td>
+          <div class="actions-cell">
+            <button class="btn btn-secondary btn-sm" onclick="openResetModal('{{ username }}', '{{ data.name }}')">🔑 Reset PW</button>
+            {% if username != '{{ user.id }}' %}
+            <button class="btn btn-danger btn-sm" onclick="confirmDelete('{{ username }}', '{{ data.name }}')">🗑 Delete</button>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">👥</div>
+    <p>No users yet. Add one to get started.</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ADD USER MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      Add New User
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('addModal')">✕</button>
+    </div>
+    <div class="modal-error" id="addError"></div>
+    <div class="field">
+      <label>Full Name</label>
+      <input class="form-input" type="text" id="addName" placeholder="e.g. Jamie Smith">
+    </div>
+    <div class="field">
+      <label>Username</label>
+      <input class="form-input" type="text" id="addUsername" placeholder="e.g. jamie" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Email (optional)</label>
+      <input class="form-input" type="email" id="addEmail" placeholder="e.g. jamie@greenbros.co.uk">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input class="form-input" type="password" id="addPassword" placeholder="Min. 6 characters" autocomplete="new-password">
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <label>Role</label>
+      <select class="form-input" id="addRole">
+        <option value="staff">Staff</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAddUser()">Add User</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESET PASSWORD MODAL -->
+<div class="modal-overlay" id="resetModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span>Reset Password — <span id="resetName"></span></span>
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('resetModal')">✕</button>
+    </div>
+    <div class="modal-error" id="resetError"></div>
+    <input type="hidden" id="resetUsername">
+    <div class="field">
+      <label>New Password</label>
+      <input class="form-input" type="password" id="resetPassword" placeholder="Min. 6 characters" autocomplete="new-password">
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <label>Confirm Password</label>
+      <input class="form-input" type="password" id="resetConfirm" placeholder="Repeat new password" autocomplete="new-password">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('resetModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitReset()">Reset Password</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openAddModal() {
+  document.getElementById('addName').value = '';
+  document.getElementById('addUsername').value = '';
+  document.getElementById('addEmail').value = '';
+  document.getElementById('addPassword').value = '';
+  document.getElementById('addRole').value = 'staff';
+  document.getElementById('addError').style.display = 'none';
+  document.getElementById('addModal').classList.add('open');
+}
+
+function openResetModal(username, name) {
+  document.getElementById('resetUsername').value = username;
+  document.getElementById('resetName').textContent = name;
+  document.getElementById('resetPassword').value = '';
+  document.getElementById('resetConfirm').value = '';
+  document.getElementById('resetError').style.display = 'none';
+  document.getElementById('resetModal').classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+async function submitAddUser() {
+  const name     = document.getElementById('addName').value.trim();
+  const username = document.getElementById('addUsername').value.trim().toLowerCase();
+  const email    = document.getElementById('addEmail').value.trim();
+  const password = document.getElementById('addPassword').value;
+  const role     = document.getElementById('addRole').value;
+  const errEl    = document.getElementById('addError');
+
+  errEl.style.display = 'none';
+
+  if (!name || !username || !password) {
+    errEl.textContent = 'Name, username and password are required.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (password.length < 6) {
+    errEl.textContent = 'Password must be at least 6 characters.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const res  = await fetch('/admin/users/add', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({name, username, email, password, role})
+  });
+  const data = await res.json();
+
+  if (data.ok) {
+    location.reload();
+  } else {
+    errEl.textContent = data.error || 'Failed to add user.';
+    errEl.style.display = 'block';
+  }
+}
+
+async function submitReset() {
+  const username = document.getElementById('resetUsername').value;
+  const password = document.getElementById('resetPassword').value;
+  const confirm  = document.getElementById('resetConfirm').value;
+  const errEl    = document.getElementById('resetError');
+
+  errEl.style.display = 'none';
+
+  if (!password || !confirm) {
+    errEl.textContent = 'Please fill in both fields.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (password !== confirm) {
+    errEl.textContent = 'Passwords do not match.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (password.length < 6) {
+    errEl.textContent = 'Password must be at least 6 characters.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const res  = await fetch('/admin/users/reset-password', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({username, password})
+  });
+  const data = await res.json();
+
+  if (data.ok) {
+    closeModal('resetModal');
+    alert('Password reset successfully.');
+  } else {
+    errEl.textContent = data.error || 'Failed to reset password.';
+    errEl.style.display = 'block';
+  }
+}
+
+async function confirmDelete(username, name) {
+  if (!confirm(`Delete user "${name}" (${username})? This cannot be undone.`)) return;
+
+  const res  = await fetch('/admin/users/delete', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({username})
+  });
+  const data = await res.json();
+
+  if (data.ok) {
+    document.querySelector(`tr[data-username="${username}"]`).remove();
+  } else {
+    alert(data.error || 'Failed to delete user.');
+  }
+}
+</script>
+{% endblock %}
