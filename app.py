@@ -321,3 +321,38 @@ def update_figures_form():
         flash("Admin access required.", "error")
         return redirect(url_for("todays_figures"))
     return render_template("update_figures.html", user=current_user)
+
+@app.route("/todays-figures/quick-save")
+@login_required  
+def quick_save_figures():
+    if current_user.role != "admin":
+        flash("Admin access required.", "error")
+        return redirect(url_for("todays_figures"))
+    
+    from datetime import date
+    
+    # Get values from query string
+    def qf(key, default=0):
+        try: return float(request.args.get(key, default))
+        except: return 0
+    
+    figure_date  = request.args.get("d", str(date.today()))
+    savings      = qf("s")
+    bank_balance = qf("b")
+    holding      = qf("h")
+    holding_note = request.args.get("hn", "")
+    rbsif        = qf("r")
+    visas_due    = qf("v")
+    net_position = qf("n")
+    if_paid_all  = qf("p")
+
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO daily_figures
+                  (figure_date, savings, bank_balance, holding, holding_note, rbsif, visas_due, net_position, if_paid_all, updated_by)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """, (figure_date, savings, bank_balance, holding, holding_note, rbsif, visas_due, net_position, if_paid_all, current_user.name))
+        conn.commit()
+    flash("Figures updated successfully!", "success")
+    return redirect(url_for("todays_figures"))
