@@ -213,51 +213,52 @@
   <div class="modal-box">
     <div class="modal-title">
       📝 Update Today's Figures
-      <button class="btn btn-secondary btn-sm" onclick="closeModal()">✕</button>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal()">✕</button>
     </div>
-    <div id="modalError" style="display:none;background:#fdecea;border:1px solid #f5c6cb;color:#721c24;padding:.65rem .9rem;border-radius:8px;font-size:.85rem;margin-bottom:1rem;"></div>
-    <div class="form-grid">
-      <div class="field field-full">
-        <label>Date (DD/MM/YYYY)</label>
-        <input class="form-input" type="text" id="figDate" placeholder="03/06/2026">
+    <form method="POST" action="/todays-figures/update">
+      <div class="form-grid">
+        <div class="field field-full">
+          <label>Date (DD/MM/YYYY)</label>
+          <input class="form-input" type="text" name="figure_date" placeholder="03/06/2026" required>
+        </div>
+        <div class="field">
+          <label>Savings Account (£)</label>
+          <input class="form-input" type="text" name="savings" placeholder="27283.30">
+        </div>
+        <div class="field">
+          <label>Bank Balance (£)</label>
+          <input class="form-input" type="text" name="bank_balance" placeholder="16726.84">
+        </div>
+        <div class="field">
+          <label>Holding (£)</label>
+          <input class="form-input" type="text" name="holding" placeholder="307415.36">
+        </div>
+        <div class="field field-full">
+          <label>Holding Note (optional)</label>
+          <input class="form-input" type="text" name="holding_note" placeholder="e.g. NOT INC £60,896.39 BATT CABLES">
+        </div>
+        <div class="field">
+          <label>RBSIF Funds in Use (£)</label>
+          <input class="form-input" type="text" name="rbsif" placeholder="549413.97">
+        </div>
+        <div class="field">
+          <label>Visa's Due in on Mace (£)</label>
+          <input class="form-input" type="text" name="visas_due" placeholder="78418.05">
+        </div>
+        <div class="field">
+          <label>Net Position ex. Savings (£)</label>
+          <input class="form-input" type="text" name="net_position" placeholder="-454269.08">
+        </div>
+        <div class="field">
+          <label>If Paid Everything (£)</label>
+          <input class="form-input" type="text" name="if_paid_all" placeholder="-761684.44">
+        </div>
       </div>
-      <div class="field">
-        <label>Savings Account (£)</label>
-        <input class="form-input" type="text" id="figSavings" placeholder="27283.30">
+      <div style="display:flex;gap:.75rem;margin-top:1.5rem;">
+        <button type="button" class="btn btn-secondary" style="flex:1;" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="flex:1;">Save Figures</button>
       </div>
-      <div class="field">
-        <label>Bank Balance (£)</label>
-        <input class="form-input" type="text" id="figBank" placeholder="16726.84">
-      </div>
-      <div class="field">
-        <label>Holding (£)</label>
-        <input class="form-input" type="text" id="figHolding" placeholder="307415.36">
-      </div>
-      <div class="field field-full">
-        <label>Holding Note (optional)</label>
-        <input class="form-input" type="text" id="figHoldingNote" placeholder="e.g. NOT INC £60,896.39 BATT CABLES">
-      </div>
-      <div class="field">
-        <label>RBSIF Funds in Use (£)</label>
-        <input class="form-input" type="text" id="figRbsif" placeholder="549413.97">
-      </div>
-      <div class="field">
-        <label>Visa's Due in on Mace (£)</label>
-        <input class="form-input" type="text" id="figVisas" placeholder="78418.05">
-      </div>
-      <div class="field">
-        <label>Net Position ex. Savings (£)</label>
-        <input class="form-input" type="text" id="figNet" placeholder="-454269.08">
-      </div>
-      <div class="field">
-        <label>If Paid Everything (£)</label>
-        <input class="form-input" type="text" id="figIfPaid" placeholder="-761684.44">
-      </div>
-    </div>
-    <div style="display:flex;gap:.75rem;margin-top:1.5rem;">
-      <button class="btn btn-secondary" style="flex:1;" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" style="flex:1;" onclick="submitFigures()">Save Figures</button>
-    </div>
+    </form>
   </div>
 </div>
 {% endif %}
