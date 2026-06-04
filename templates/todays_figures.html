@@ -4,7 +4,7 @@
 
 {% block topbar_actions %}
 {% if user.role == 'admin' %}
-<button class="btn btn-primary" onclick="openUpdateModal()">📝 Update Figures</button>
+<a href="{{ url_for('update_figures_form') }}" class="btn btn-primary">📝 Update Figures</a>
 {% endif %}
 {% endblock %}
 
@@ -201,7 +201,7 @@
       <div class="no-icon">💰</div>
       <p>No figures entered yet.</p>
       {% if user.role == 'admin' %}
-      <button class="btn btn-primary" style="margin-top:1rem;" onclick="openUpdateModal()">Enter Today's Figures</button>
+      <a href="{{ url_for('update_figures_form') }}" class="btn btn-primary" style="margin-top:1rem;">Enter Today's Figures</a>
       {% endif %}
     </div>
   </div>
