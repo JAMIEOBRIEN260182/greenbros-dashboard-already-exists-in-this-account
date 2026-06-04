@@ -217,9 +217,9 @@
     </div>
     <div id="modalError" style="display:none;background:#fdecea;border:1px solid #f5c6cb;color:#721c24;padding:.65rem .9rem;border-radius:8px;font-size:.85rem;margin-bottom:1rem;"></div>
     <div class="form-grid">
-      <div class="field">
-        <label>Date</label>
-        <input class="form-input" type="date" id="figDate">
+      <div class="field field-full">
+        <label>Date (DD/MM/YYYY)</label>
+        <input class="form-input" type="text" id="figDate" placeholder="03/06/2026">
       </div>
       <div class="field">
         <label>Savings Account (£)</label>
@@ -267,10 +267,20 @@
 {% block scripts %}
 <script>
 function openUpdateModal() {
-  // Set today's date
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('figDate').value = today;
+  // Set today's date in DD/MM/YYYY format
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2,'0');
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const yyyy = today.getFullYear();
+  document.getElementById('figDate').value = `${dd}/${mm}/${yyyy}`;
   document.getElementById('updateModal').classList.add('open');
+}
+
+function parseDate(str) {
+  // Convert DD/MM/YYYY to YYYY-MM-DD for the database
+  const parts = str.split('/');
+  if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  return str;
 }
 function closeModal() {
   document.getElementById('updateModal').classList.remove('open');
@@ -284,7 +294,7 @@ async function submitFigures() {
   errEl.style.display = 'none';
 
   const data = {
-    figure_date:  document.getElementById('figDate').value,
+    figure_date:  parseDate(document.getElementById('figDate').value),
     savings:      parseFloat(document.getElementById('figSavings').value) || 0,
     bank_balance: parseFloat(document.getElementById('figBank').value) || 0,
     holding:      parseFloat(document.getElementById('figHolding').value) || 0,
