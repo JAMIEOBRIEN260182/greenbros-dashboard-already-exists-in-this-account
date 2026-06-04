@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GreenBros – Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:   #2d6a4f;
+      --green-l: #52b788;
+      --green-xl:#95d5b2;
+      --cream:   #f8f4ec;
+      --dark:    #1a2e22;
+      --muted:   #6b7f72;
+      --err:     #c0392b;
+      --radius:  14px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+    }
+
+    body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+    }
+
+    /* ── LEFT PANEL ── */
+    .panel-left {
+      background: var(--green);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel-left::before {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(82,183,136,.35) 0%, transparent 70%);
+      bottom: -120px; right: -120px;
+      pointer-events: none;
+    }
+
+    .panel-left::after {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(149,213,178,.2) 0%, transparent 70%);
+      top: -60px; left: -60px;
+      pointer-events: none;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand-logo {
+      width: 48px; height: 48px;
+      background: rgba(255,255,255,.15);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .brand-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+
+    .panel-tagline {
+      position: relative;
+      z-index: 1;
+    }
+
+    .panel-tagline h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .panel-tagline h1 span {
+      color: var(--green-xl);
+    }
+
+    .panel-tagline p {
+      color: rgba(255,255,255,.65);
+      font-size: .95rem;
+      font-weight: 300;
+      line-height: 1.6;
+      max-width: 320px;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .panel-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      animation: fadeUp .5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-card h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.75rem;
+      letter-spacing: -0.02em;
+      margin-bottom: .4rem;
+    }
+
+    .login-card .subtitle {
+      color: var(--muted);
+      font-size: .9rem;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Flash messages */
+    .flash {
+      background: #fdecea;
+      border: 1px solid #f5c6cb;
+      color: var(--err);
+      padding: .75rem 1rem;
+      border-radius: var(--radius);
+      font-size: .875rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .flash::before { content: '⚠'; font-size: 1rem; }
+
+    /* Form */
+    .field { margin-bottom: 1.25rem; }
+
+    label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 500;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .5rem;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: .85rem 1rem;
+      border: 1.5px solid #dde6e0;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      background: #fff;
+      color: var(--dark);
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--green-l);
+      box-shadow: 0 0 0 3px rgba(82,183,136,.15);
+    }
+
+    .remember-row {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .remember-row input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--green);
+      cursor: pointer;
+    }
+
+    .remember-row label {
+      font-size: .875rem;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--muted);
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: .95rem;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: .02em;
+      cursor: pointer;
+      transition: background .2s, transform .1s, box-shadow .2s;
+      box-shadow: 0 4px 14px rgba(45,106,79,.25);
+    }
+
+    .btn-login:hover {
+      background: #256044;
+      box-shadow: 0 6px 20px rgba(45,106,79,.35);
+    }
+
+    .btn-login:active { transform: scale(.98); }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: .8rem;
+      margin-top: 2rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 680px) {
+      body { grid-template-columns: 1fr; }
+      .panel-left { display: none; }
+      .panel-right { padding: 2rem 1.5rem; align-items: flex-start; padding-top: 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="panel-left">
+    <div class="brand">
+      <div class="brand-logo">🌿</div>
+      <span class="brand-name">GreenBros</span>
+    </div>
+    <div class="panel-tagline">
+      <h1>Your team.<br><span>One dashboard.</span></h1>
+      <p>Manage your crew, track operations, and keep everything green — all in one place.</p>
+    </div>
+  </div>
+
+  <div class="panel-right">
+    <div class="login-card">
+      <h2>Welcome back</h2>
+      <p class="subtitle">Sign in to your GreenBros account</p>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for msg in messages %}
+            <div class="flash">{{ msg }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('login') }}">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="Enter your username" required autofocus>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <div class="remember-row">
+          <input type="checkbox" id="remember" name="remember">
+          <label for="remember">Keep me signed in</label>
+        </div>
+
+        <button type="submit" class="btn-login">Sign In →</button>
+      </form>
+
+      <p class="footer-note">Having trouble? Contact your admin.</p>
+    </div>
+  </div>
+
+</body>
+</html>
