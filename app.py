@@ -213,3 +213,8 @@ if __name__ == "__main__":
 @login_required
 def overview():
     return render_template("overview.html", user=current_user)
+
+@app.route("/unaccepted-quotes")
+@login_required
+def unaccepted_quotes():
+    return render_template("unaccepted_quotes.html", user=current_user)
