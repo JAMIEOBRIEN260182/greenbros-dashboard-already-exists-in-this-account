@@ -218,3 +218,66 @@ def overview():
 @login_required
 def unaccepted_quotes():
     return render_template("unaccepted_quotes.html", user=current_user)
+
+# ── TODAY'S FIGURES ───────────────────────────────────────────────────────────
+
+def init_figures_table():
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS daily_figures (
+                    id           SERIAL PRIMARY KEY,
+                    figure_date  DATE NOT NULL DEFAULT CURRENT_DATE,
+                    savings      NUMERIC(12,2),
+                    bank_balance NUMERIC(12,2),
+                    holding      NUMERIC(12,2),
+                    holding_note TEXT,
+                    rbsif        NUMERIC(12,2),
+                    visas_due    NUMERIC(12,2),
+                    net_position NUMERIC(12,2),
+                    if_paid_all  NUMERIC(12,2),
+                    updated_by   TEXT,
+                    created_at   TIMESTAMP DEFAULT NOW()
+                )
+            """)
+        conn.commit()
+
+init_figures_table()
+
+@app.route("/todays-figures")
+@login_required
+def todays_figures():
+    with get_db() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM daily_figures ORDER BY figure_date DESC, created_at DESC LIMIT 1")
+            latest = cur.fetchone()
+            cur.execute("SELECT * FROM daily_figures ORDER BY figure_date DESC, created_at DESC LIMIT 30")
+            history = cur.fetchall()
+    return render_template("todays_figures.html", user=current_user, latest=latest, history=history)
+
+@app.route("/todays-figures/update", methods=["POST"])
+@login_required
+def update_figures():
+    if current_user.role != "admin":
+        return jsonify({"error": "Admin access required"}), 403
+    d = request.json
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO daily_figures
+                  (figure_date, savings, bank_balance, holding, holding_note, rbsif, visas_due, net_position, if_paid_all, updated_by)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """, (
+                d.get("figure_date"),
+                d.get("savings"),
+                d.get("bank_balance"),
+                d.get("holding"),
+                d.get("holding_note",""),
+                d.get("rbsif"),
+                d.get("visas_due"),
+                d.get("net_position"),
+                d.get("if_paid_all"),
+                current_user.name
+            ))
+        conn.commit()
+    return jsonify({"ok": True})
