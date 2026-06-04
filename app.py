@@ -286,3 +286,8 @@ def update_figures():
 @login_required
 def outstanding_orders():
     return render_template("outstanding_orders.html", user=current_user)
+
+@app.route("/credit-limits")
+@login_required
+def credit_limits():
+    return render_template("credit_limits.html", user=current_user)
