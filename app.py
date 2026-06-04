@@ -313,3 +313,11 @@ def credit_limits():
 @login_required
 def solar_projects():
     return render_template("solar_projects.html", user=current_user)
+
+@app.route("/todays-figures/form")
+@login_required
+def update_figures_form():
+    if current_user.role != "admin":
+        flash("Admin access required.", "error")
+        return redirect(url_for("todays_figures"))
+    return render_template("update_figures.html", user=current_user)
