@@ -259,16 +259,34 @@ def todays_figures():
 @login_required
 def update_figures():
     if current_user.role != "admin":
-        return jsonify({"error": "Admin access required"}), 403
-    d = request.json
-    print("DEBUG figures received:", d)  # This will show in Render logs
-    
-    # Convert string values to float safely
+        flash("Admin access required.", "error")
+        return redirect(url_for("todays_figures"))
+
     def to_float(val):
         try:
-            return float(str(val).replace('£','').replace(',','').strip()) if val else 0
+            return float(str(val).replace("£","").replace(",","").strip()) if val else 0
         except:
             return 0
+
+    def parse_date(val):
+        val = str(val).strip()
+        if "/" in val:
+            parts = val.split("/")
+            if len(parts) == 3:
+                return f"{parts[2]}-{parts[1]}-{parts[0]}"
+        return val
+
+    figure_date  = parse_date(request.form.get("figure_date",""))
+    savings      = to_float(request.form.get("savings"))
+    bank_balance = to_float(request.form.get("bank_balance"))
+    holding      = to_float(request.form.get("holding"))
+    holding_note = request.form.get("holding_note","")
+    rbsif        = to_float(request.form.get("rbsif"))
+    visas_due    = to_float(request.form.get("visas_due"))
+    net_position = to_float(request.form.get("net_position"))
+    if_paid_all  = to_float(request.form.get("if_paid_all"))
+
+    print(f"FIGURES SAVED: date={figure_date} savings={savings} bank={bank_balance} rbsif={rbsif} net={net_position}")
 
     with get_db() as conn:
         with conn.cursor() as cur:
@@ -276,20 +294,10 @@ def update_figures():
                 INSERT INTO daily_figures
                   (figure_date, savings, bank_balance, holding, holding_note, rbsif, visas_due, net_position, if_paid_all, updated_by)
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-            """, (
-                d.get("figure_date"),
-                to_float(d.get("savings")),
-                to_float(d.get("bank_balance")),
-                to_float(d.get("holding")),
-                d.get("holding_note",""),
-                to_float(d.get("rbsif")),
-                to_float(d.get("visas_due")),
-                to_float(d.get("net_position")),
-                to_float(d.get("if_paid_all")),
-                current_user.name
-            ))
+            """, (figure_date, savings, bank_balance, holding, holding_note, rbsif, visas_due, net_position, if_paid_all, current_user.name))
         conn.commit()
-    return jsonify({"ok": True})
+    flash("Figures updated successfully!", "success")
+    return redirect(url_for("todays_figures"))
 
 @app.route("/outstanding-orders")
 @login_required
