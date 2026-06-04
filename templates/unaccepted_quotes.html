@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}Unaccepted Quotes – GreenBros{% endblock %}
+{% block page_title %}Retford Unaccepted Quotes{% endblock %}
+
+{% block extra_styles %}
+.summary-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.summary-pill {
+  background: var(--dark);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: .9rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+.summary-pill .pill-val {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.6rem;
+  letter-spacing: -0.03em;
+  color: #52b788;
+}
+.summary-pill .pill-lbl {
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: rgba(255,255,255,.5);
+  margin-top: .2rem;
+}
+.search-bar {
+  margin-bottom: 1rem;
+}
+.search-bar input {
+  width: 100%;
+  max-width: 400px;
+  padding: .65rem 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem;
+  outline: none;
+}
+.search-bar input:focus {
+  border-color: var(--green-l);
+  box-shadow: 0 0 0 3px rgba(82,183,136,.15);
+}
+.quotes-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.quotes-table th {
+  text-align: left;
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+.quotes-table th:hover { color: var(--dark); }
+.quotes-table td {
+  padding: .8rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: .875rem;
+  vertical-align: middle;
+}
+.quotes-table tr:last-child td { border-bottom: none; }
+.quotes-table tr:hover td { background: #f9fafb; }
+.quote-value {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  color: var(--green);
+}
+.quote-id {
+  font-size: .8rem;
+  color: var(--muted);
+  font-family: monospace;
+}
+{% endblock %}
+
+{% block content %}
+
+<div class="summary-bar">
+  <div class="summary-pill">
+    <span class="pill-val" id="totalValue">£571,541</span>
+    <span class="pill-lbl">Total Value</span>
+  </div>
+  <div class="summary-pill">
+    <span class="pill-val" id="totalCount">284</span>
+    <span class="pill-lbl">Total Quotes</span>
+  </div>
+  <div class="summary-pill">
+    <span class="pill-val" id="filteredCount">284</span>
+    <span class="pill-lbl">Showing</span>
+  </div>
+</div>
+
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="Search by customer, quote ID or salesman...">
+</div>
+
+<div class="card" style="padding:0;overflow:hidden;">
+  <table class="quotes-table" id="quotesTable">
+    <thead>
+      <tr>
+        <th onclick="sortTable('id')">Quote ID</th>
+        <th onclick="sortTable('customer')">Customer</th>
+        <th onclick="sortTable('value')">Value</th>
+        <th onclick="sortTable('date')">Date</th>
+        <th onclick="sortTable('salesman')">Salesman</th>
+      </tr>
+    </thead>
+    <tbody id="quotesBody"></tbody>
+  </table>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const DATA = {"total_value": 571540.93, "total_count": 284, "quotes": [{"id": "51573:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 59417.15, "date": "2026-05-18", "salesman": "JAMIE O'BRIEN"}, {"id": "51459:1", "customer": "RANSFORD ELECT SERVICES LTD", "value": 29957.15, "date": "2026-05-07", "salesman": "JAMIE O'BRIEN"}, {"id": "51704:1", "customer": "HYDROUS ENVIROMENTAL GROUP LTD", "value": 26887.82, "date": "2026-05-29", "salesman": "HOUSE RETFORD"}, {"id": "51634:1", "customer": "PETER GREEN BATHROOM SALES", "value": 22294.88, "date": "2026-05-20", "salesman": "PETER GREEN"}, {"id": "51553:1", "customer": "BEN GAMBLE ELECTRICAL LTD", "value": 20422.14, "date": "2026-05-15", "salesman": "JAMIE O'BRIEN"}, {"id": "51443:1", "customer": "CASH SALES (RETFORD)", "value": 11392.01, "date": "2026-05-05", "salesman": "HOUSE RETFORD"}, {"id": "51683:1", "customer": "CASH SALES (RETFORD)", "value": 10658.18, "date": "2026-05-28", "salesman": "HOUSE RETFORD"}, {"id": "51525:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 10399.99, "date": "2026-05-14", "salesman": "JAMIE O'BRIEN"}, {"id": "51526:1", "customer": "GEN2 CONSTRUCTION LTD", "value": 8942.7, "date": "2026-05-14", "salesman": "LOUIS CHADWICK"}, {"id": "51582:1", "customer": "NTEC ELECTRICAL LTD", "value": 8892.13, "date": "2026-05-18", "salesman": "JAMIE O'BRIEN"}, {"id": "51686:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 8726.8, "date": "2026-05-28", "salesman": "JAMIE O'BRIEN"}, {"id": "51472:1", "customer": "PETER GREEN BATHROOM SALES", "value": 8638.41, "date": "2026-05-08", "salesman": "PETER GREEN"}, {"id": "51584:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 8527.8, "date": "2026-05-18", "salesman": "JAMIE O'BRIEN"}, {"id": "51606:1", "customer": "NTEC ELECTRICAL LTD", "value": 8331.71, "date": "2026-05-20", "salesman": "JAMIE O'BRIEN"}, {"id": "51503:1", "customer": "CADENT GAS LIMITED", "value": 8146.87, "date": "2026-05-12", "salesman": "JAMIE O'BRIEN"}, {"id": "51585:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 8127.05, "date": "2026-05-18", "salesman": "JAMIE O'BRIEN"}, {"id": "51506:1", "customer": "CADENT GAS LIMITED", "value": 7952.53, "date": "2026-05-12", "salesman": "JAMIE O'BRIEN"}, {"id": "51633:1", "customer": "PETER GREEN BATHROOM SALES", "value": 7697.89, "date": "2026-05-21", "salesman": "PETER GREEN"}, {"id": "51466:1", "customer": "TAGGAS LTD", "value": 7463.31, "date": "2026-05-08", "salesman": "JAMIE O'BRIEN"}, {"id": "51618:1", "customer": "CADENT GAS LIMITED", "value": 7205.81, "date": "2026-05-21", "salesman": "JAMIE O'BRIEN"}, {"id": "51619:1", "customer": "CADENT GAS LIMITED", "value": 7205.1, "date": "2026-05-21", "salesman": "JAMIE O'BRIEN"}, {"id": "51579:1", "customer": "GEN2 CONSTRUCTION LTD", "value": 7086.81, "date": "2026-05-18", "salesman": "LOUIS CHADWICK"}, {"id": "51479:1", "customer": "CADENT GAS LIMITED", "value": 6741.15, "date": "2026-05-10", "salesman": "JAMIE O'BRIEN"}, {"id": "51480:1", "customer": "CADENT GAS LIMITED", "value": 6696.57, "date": "2026-05-10", "salesman": "JAMIE O'BRIEN"}, {"id": "51463:1", "customer": "GEN2 CONSTRUCTION LTD", "value": 6547.29, "date": "2026-05-07", "salesman": "LOUIS CHADWICK"}, {"id": "51583:1", "customer": "NTEC ELECTRICAL LTD", "value": 6296.1, "date": "2026-05-18", "salesman": "JAMIE O'BRIEN"}, {"id": "51511:1", "customer": "ALPHA ELECTRICAL DONCASTER LTD", "value": 6275.21, "date": "2026-05-12", "salesman": "JAMIE O'BRIEN"}, {"id": "51465:1", "customer": "TAGGAS LTD", "value": 6271.54, "date": "2026-05-08", "salesman": "JAMIE O'BRIEN"}, {"id": "51594:1", "customer": "CADENT GAS LIMITED", "value": 6217.15, "date": "2026-05-19", "salesman": "JAMIE O'BRIEN"}, {"id": "51588:1", "customer": "CASH SALES (RETFORD)", "value": 5850.51, "date": "2026-05-18", "salesman": "HOUSE RETFORD"}, {"id": "51500:1", "customer": "TAGGAS LTD", "value": 5687.7, "date": "2026-05-12", "salesman": "JAMIE O'BRIEN"}, {"id": "51670:1", "customer": "TAGGAS LTD", "value": 5502.18, "date": "2026-05-27", "salesman": "JAMIE O'BRIEN"}, {"id": "51679:1", "customer": "TAGGAS LTD", "value": 5483.86, "date": "2026-05-28", "salesman": "JAMIE O'BRIEN"}, {"id": "51649:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 5349.2, "date": "2026-05-26", "salesman": "JAMIE O'BRIEN"}, {"id": "51684:1", "customer": "GEN2 CONSTRUCTION LTD", "value": 5051.92, "date": "2026-05-28", "salesman": "LOUIS CHADWICK"}, {"id": "51586:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 4751.65, "date": "2026-05-18", "salesman": "JAMIE O'BRIEN"}, {"id": "51427:1", "customer": "RBATH10 - LOUIS CHADWICK", "value": 4746.91, "date": "2026-05-01", "salesman": "HOUSE RETFORD"}, {"id": "51614:1", "customer": "GEN2 CONSTRUCTION LTD", "value": 4539.21, "date": "2026-05-20", "salesman": "LOUIS CHADWICK"}, {"id": "51664:1", "customer": "TAGGAS LTD", "value": 4432.5, "date": "2026-05-26", "salesman": "JAMIE O'BRIEN"}, {"id": "51536:1", "customer": "CARL NOBLE ELECTRICAL LTD", "value": 4383.75, "date": "2026-05-14", "salesman": "JAMIE O'BRIEN"}, {"id": "51428:1", "customer": "RBATH10 - LOUIS CHADWICK", "value": 4248.79, "date": "2026-05-05", "salesman": "HOUSE RETFORD"}, {"id": "51548:1", "customer": "EPM ELECTRICAL CONTRACTING LTD", "value": 4248.79, "date": "2026-05-15", "salesman": "LOUIS CHADWICK"}, {"id": "51486:1", "customer": "GELDER LIMITED", "value": 4115.73, "date": "2026-05-11", "salesman": "HOUSE RETFORD"}, {"id": "51665:1", "customer": "PETER GREEN BATHROOM SALES", "value": 4010.86, "date": "2026-05-26", "salesman": "PETER GREEN"}, {"id": "51587:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 3967.05, "date": "2026-05-18", "salesman": "JAMIE O'BRIEN"}, {"id": "51529:1", "customer": "M G P PLUMBING & HEATING", "value": 3674.75, "date": "2026-05-14", "salesman": "HOUSE RETFORD"}, {"id": "51522:1", "customer": "PETER GREEN BATHROOM SALES", "value": 3583.34, "date": "2026-05-13", "salesman": "PETER GREEN"}, {"id": "51706:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 3510.0, "date": "2026-05-29", "salesman": "JAMIE O'BRIEN"}, {"id": "51599:1", "customer": "GEN2 CONSTRUCTION LTD", "value": 3323.6, "date": "2026-05-19", "salesman": "LOUIS CHADWICK"}, {"id": "51677:1", "customer": "CASH SALES (RETFORD)", "value": 3269.87, "date": "2026-05-27", "salesman": "HOUSE RETFORD"}, {"id": "51627:1", "customer": "PETER GREEN BATHROOM SALES", "value": 3185.17, "date": "2026-05-21", "salesman": "PETER GREEN"}, {"id": "51431:1", "customer": "CODE ELECTRICAL AUTO UK LTD", "value": 3130.27, "date": "2026-05-05", "salesman": "JAMIE O'BRIEN"}, {"id": "51560:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 2626.15, "date": "2026-05-15", "salesman": "JAMIE O'BRIEN"}, {"id": "51469:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 2446.87, "date": "2026-05-08", "salesman": "JAMIE O'BRIEN"}, {"id": "51523:1", "customer": "TUNNARD PLUMBING & HEATING", "value": 2412.65, "date": "2026-05-13", "salesman": "PETER GREEN"}, {"id": "51488:1", "customer": "TUNNARD PLUMBING & HEATING", "value": 2311.6, "date": "2026-05-11", "salesman": "PETER GREEN"}, {"id": "51540:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 2298.2, "date": "2026-05-14", "salesman": "JAMIE O'BRIEN"}, {"id": "51485:1", "customer": "JORDAN HARRIS INSTALLATIONS", "value": 2244.51, "date": "2026-05-11", "salesman": "PETER GREEN"}, {"id": "51552:1", "customer": "EPM ELECTRICAL CONTRACTING LTD", "value": 2216.4, "date": "2026-05-15", "salesman": "LOUIS CHADWICK"}, {"id": "51454:1", "customer": "TUNNARD PLUMBING & HEATING", "value": 2131.85, "date": "2026-05-07", "salesman": "PETER GREEN"}, {"id": "51430:1", "customer": "PETER GREEN BATHROOM SALES", "value": 2059.01, "date": "2026-05-05", "salesman": "PETER GREEN"}, {"id": "51637:1", "customer": "JORDAN HARRIS INSTALLATIONS", "value": 1916.69, "date": "2026-05-22", "salesman": "PETER GREEN"}, {"id": "51491:1", "customer": "TAGGAS LTD", "value": 1861.28, "date": "2026-05-11", "salesman": "JAMIE O'BRIEN"}, {"id": "51623:1", "customer": "NEWGEN PROJECTS LIMITED", "value": 1833.96, "date": "2026-05-21", "salesman": "LOUIS CHADWICK"}, {"id": "51514:1", "customer": "HELEN SKINNER", "value": 1772.11, "date": "2026-05-13", "salesman": "HOUSE RETFORD"}, {"id": "51565:1", "customer": "PETER GREEN BATHROOM SALES", "value": 1767.54, "date": "2026-05-15", "salesman": "PETER GREEN"}, {"id": "51541:1", "customer": "EPM ELECTRICAL CONTRACTING LTD", "value": 1699.24, "date": "2026-05-14", "salesman": "LOUIS CHADWICK"}, {"id": "51590:1", "customer": "CASH SALES (RETFORD)", "value": 1653.82, "date": "2026-05-18", "salesman": "HOUSE RETFORD"}, {"id": "51483:1", "customer": "T G BEIGHTON LTD", "value": 1618.29, "date": "2026-05-11", "salesman": "HOUSE RETFORD"}, {"id": "51482:1", "customer": "T G BEIGHTON LTD", "value": 1618.29, "date": "2026-05-11", "salesman": "HOUSE RETFORD"}, {"id": "51544:1", "customer": "BEN GAMBLE ELECTRICAL LTD", "value": 1589.87, "date": "2026-05-14", "salesman": "JAMIE O'BRIEN"}, {"id": "51444:1", "customer": "PETER GREEN BATHROOM SALES", "value": 1571.97, "date": "2026-05-06", "salesman": "PETER GREEN"}, {"id": "51696:1", "customer": "DUNCAN LEWIS ELECTRICAL", "value": 1565.95, "date": "2026-05-29", "salesman": "JAMIE O'BRIEN"}, {"id": "51615:1", "customer": "PETER GREEN BATHROOM SALES", "value": 1561.17, "date": "2026-05-20", "salesman": "PETER GREEN"}, {"id": "51604:1", "customer": "NORTH PB LTD", "value": 1557.96, "date": "2026-05-19", "salesman": "JAMIE O'BRIEN"}, {"id": "51566:1", "customer": "RETFORD CASH SALE (JB)", "value": 1549.18, "date": "2026-05-15", "salesman": "JACK BAGNALL"}, {"id": "51494:1", "customer": "CODE ELECTRICAL AUTO UK LTD", "value": 1544.42, "date": "2026-05-11", "salesman": "JAMIE O'BRIEN"}, {"id": "51576:1", "customer": "SIX SOLUTIONS LTD", "value": 1526.28, "date": "2026-05-18", "salesman": "HOUSE RETFORD"}, {"id": "51518:1", "customer": "CARL NOBLE ELECTRICAL LTD", "value": 1500.9, "date": "2026-05-13", "salesman": "JAMIE O'BRIEN"}, {"id": "51516:1", "customer": "NORTH NOTTINGHAMSHIRE COLLEGE", "value": 1496.56, "date": "2026-05-13", "salesman": "HOUSE RETFORD"}, {"id": "51452:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 1492.27, "date": "2026-05-06", "salesman": "JAMIE O'BRIEN"}, {"id": "51613:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 1470.0, "date": "2026-05-20", "salesman": "JAMIE O'BRIEN"}, {"id": "51423:1", "customer": "RAMP ELECTRICAL LTD", "value": 1432.42, "date": "2026-05-01", "salesman": "LOUIS CHADWICK"}, {"id": "51639:1", "customer": "JORDAN HARRIS INSTALLATIONS", "value": 1424.32, "date": "2026-05-22", "salesman": "PETER GREEN"}, {"id": "51510:1", "customer": "NORTH PB LTD", "value": 1316.73, "date": "2026-05-12", "salesman": "JAMIE O'BRIEN"}, {"id": "51550:1", "customer": "EPM ELECTRICAL CONTRACTING LTD", "value": 1290.09, "date": "2026-05-15", "salesman": "LOUIS CHADWICK"}, {"id": "51507:1", "customer": "JONNY LOATES", "value": 1236.66, "date": "2026-05-12", "salesman": "HOUSE RETFORD"}, {"id": "51505:1", "customer": "DJ MARRIOTT ELECTRICAL LTD", "value": 1172.68, "date": "2026-05-12", "salesman": "HOUSE RETFORD"}, {"id": "51570:1", "customer": "NORTH PB LTD", "value": 1164.95, "date": "2026-05-18", "salesman": "JAMIE O'BRIEN"}, {"id": "51439:1", "customer": "ROBBIE COLLINGBURN", "value": 1089.17, "date": "2026-05-05", "salesman": "HOUSE RETFORD"}, {"id": "51487:1", "customer": "TUNNARD PLUMBING & HEATING", "value": 1073.9, "date": "2026-05-11", "salesman": "PETER GREEN"}, {"id": "51571:1", "customer": "CARL NOBLE ELECTRICAL LTD", "value": 1040.71, "date": "2026-05-18", "salesman": "JAMIE O'BRIEN"}, {"id": "51455:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 1030.97, "date": "2026-05-07", "salesman": "JAMIE O'BRIEN"}, {"id": "51542:1", "customer": "CODE ELECTRICAL AUTO UK LTD", "value": 1021.01, "date": "2026-05-14", "salesman": "JAMIE O'BRIEN"}, {"id": "51638:1", "customer": "JORDAN HARRIS INSTALLATIONS", "value": 1016.73, "date": "2026-05-22", "salesman": "PETER GREEN"}, {"id": "51490:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 991.37, "date": "2026-05-11", "salesman": "JAMIE O'BRIEN"}, {"id": "51688:1", "customer": "HAWLEC ELEC CONTRACTORS LTD", "value": 990.0, "date": "2026-05-28", "salesman": "JAMIE O'BRIEN"}, {"id": "51617:1", "customer": "JORDAN HARRIS INSTALLATIONS", "value": 955.99, "date": "2026-05-20", "salesman": "PETER GREEN"}, {"id": "51631:1", "customer": "NEWGEN PROJECTS LIMITED", "value": 948.67, "date": "2026-05-21", "salesman": "LOUIS CHADWICK"}, {"id": "51601:1", "customer": "CASH SALES (RETFORD)", "value": 915.59, "date": "2026-05-19", "salesman": "HOUSE RETFORD"}]};
+
+let allQuotes = DATA.quotes;
+let filtered  = [...allQuotes];
+let sortKey   = 'value';
+let sortAsc   = false;
+
+function fmt(v) {
+  return '£' + v.toLocaleString('en-GB', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function render() {
+  const tbody = document.getElementById('quotesBody');
+  tbody.innerHTML = '';
+  filtered.forEach(q => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="quote-id">${q.id}</span></td>
+      <td>${q.customer}</td>
+      <td><span class="quote-value">${fmt(q.value)}</span></td>
+      <td>${q.date}</td>
+      <td>${q.salesman}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('filteredCount').textContent = filtered.length;
+  const total = filtered.reduce((s,q) => s+q.value, 0);
+  document.getElementById('totalValue').textContent = '£' + Math.round(total).toLocaleString('en-GB');
+}
+
+function sortTable(key) {
+  if (sortKey === key) sortAsc = !sortAsc;
+  else { sortKey = key; sortAsc = key !== 'value'; }
+  filtered.sort((a,b) => {
+    let va = a[key], vb = b[key];
+    if (typeof va === 'string') va = va.toLowerCase(), vb = vb.toLowerCase();
+    return sortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+  });
+  render();
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  filtered = allQuotes.filter(r =>
+    r.customer.toLowerCase().includes(q) ||
+    r.id.toLowerCase().includes(q) ||
+    r.salesman.toLowerCase().includes(q)
+  );
+  sortTable(sortKey);
+});
+
+document.getElementById('totalCount').textContent = DATA.total_count;
+sortTable('value');
+</script>
+{% endblock %}
